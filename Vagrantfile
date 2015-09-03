@@ -50,8 +50,8 @@ Vagrant.configure(2) do |config|
 
         node.vm.hostname = hostname
         node.vm.network :private_network,
-                        :ip => machine['ip'],
-                        :netmask => netmask
+                        ip: machine['ip'],
+                        netmask: netmask
 
         set_node_property? config, machine, "memory"
         set_node_property? config, machine, "cpus"
