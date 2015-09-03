@@ -21,6 +21,20 @@ def set_node_property?(config, definition, attr, spec=SPEC)
 
 end
 
+
+def insert_key?(config, definition, spec=SPEC)
+  pub_key_path = get_from_spec_with_defaults definition, 'pub_key_path', spec
+  key = File.readlines(pub_key_path).first.strip
+
+  config.vm.provision 'shell', privileged: false do |shell|
+    shell.inline = <<-SHELL
+      echo "#{key}" >> $HOME/.ssh/authorized_keys
+    SHELL
+  end
+
+end
+
+
 Vagrant.configure(2) do |config|
 
   config.vm.box = SPEC['vagrant']['box']
@@ -43,6 +57,7 @@ Vagrant.configure(2) do |config|
         set_node_property? config, machine, "cpus"
         set_node_property? config, machine, "nested"
         
+        insert_key? config, machine
 
       end
     end
