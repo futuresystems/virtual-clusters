@@ -16,14 +16,7 @@ def set_node_property?(config, definition, attr, spec=SPEC)
   val = get_from_spec_with_defaults definition, attr, spec
 
   config.vm.provider spec['vagrant']['provider'] do |provider|
-    case attr
-    when "memory"
-      provider.memory = val
-    when "cpus"
-      provider.cpus = val
-    when "nested"
-      provider.nested = val
-    end
+    provider.send("#{attr}=", val)
   end
 
 end
@@ -35,7 +28,6 @@ Vagrant.configure(2) do |config|
 
   SPEC['inventory'].each do |groupname, elems|
     elems.each do |machine|
-      puts machine
 
       config.vm.define machine['name'] do |node|
  
