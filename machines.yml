@@ -1,0 +1,26 @@
+
+vagrant:
+  provider: libvirt
+  box: baremettle/ubuntu-14.04
+
+defaults:
+  netmask: 255.255.0.0
+  memory: 1024
+  cpus: 1
+
+inventory:
+
+  master:
+
+    - name: master
+      ip: 10.0.0.10
+      memory: 2048
+      cpus: 2
+
+  slave:
+
+    - name: slave01
+      ip: 10.0.1.10
+
+    - name: slave02
+      ip: 10.0.1.11
