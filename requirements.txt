@@ -1,3 +1,4 @@
 docker-compose
 jinja2
 ansible
+PyYAML
