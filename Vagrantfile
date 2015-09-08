@@ -42,26 +42,24 @@ Vagrant.configure(2) do |config|
   config.vm.box = SPEC['vagrant']['box']
   config.vm.synced_folder ".", "/vagrant", disabled: true
 
-  SPEC['inventory'].each do |groupname, elems|
-    elems.each do |machine|
+  SPEC['machines'].each do |machine|
 
-      config.vm.define machine['name'] do |node|
+    config.vm.define machine['name'] do |node|
  
-        netmask = get_from_spec_with_defaults machine, 'netmask'
-        hostname = machine.fetch 'hostname', machine['name']
+      netmask = get_from_spec_with_defaults machine, 'netmask'
+      hostname = machine.fetch 'hostname', machine['name']
 
-        node.vm.hostname = hostname
-        node.vm.network :private_network,
-                        ip: machine['ip'],
-                        netmask: netmask
+      node.vm.hostname = hostname
+      node.vm.network :private_network,
+                      ip: machine['ip'],
+                      netmask: netmask
 
-        set_node_property? config, machine, "memory"
-        set_node_property? config, machine, "cpus"
-        set_node_property? config, machine, "nested"
+      set_node_property? config, machine, "memory"
+      set_node_property? config, machine, "cpus"
+      set_node_property? config, machine, "nested"
         
-        insert_key? config, machine
+      insert_key? config, machine
 
-      end
     end
   end
 

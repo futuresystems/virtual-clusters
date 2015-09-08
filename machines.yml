@@ -9,19 +9,37 @@ defaults:
   cpus: 1
   key_path: key
 
+machines:
+
+  - name: zk1
+    ip: 10.0.0.10
+
+  - name: zk2
+    ip: 10.0.0.11
+
+  - name: mesos1
+    ip: 10.0.1.10
+
+  - name: node1
+    ip: 10.0.2.10
+
+  - name: node2
+    ip: 10.0.2.11
+
 inventory:
 
-  master:
+  # lists are used to preserve order in the generated inventory file
 
-    - name: master
-      ip: 10.0.0.10
-      memory: 2048
-      cpus: 2
+  - zookeeper:
 
-  slave:
+    - zk1
+    - zk2
 
-    - name: slave01
-      ip: 10.0.1.10
+  - mesos:
 
-    - name: slave02
-      ip: 10.0.1.11
+    - mesos1
+
+  - nodes:
+
+    - node1
+    - node2
