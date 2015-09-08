@@ -1,6 +1,8 @@
 require 'yaml'
 
-SPEC = YAML.load_file('machines.yml')
+SPEC_FILE = 'machines.yml'
+SPEC = YAML.load_file(SPEC_FILE)
+INVENTORY_FILE = 'inventory.txt'
 
 
 def get_from_spec_with_defaults(definition, attr, spec=SPEC)
@@ -64,3 +66,6 @@ Vagrant.configure(2) do |config|
   end
 
 end
+
+
+print `./scripts/mkInventory #{SPEC_FILE} | tee #{INVENTORY_FILE}`
