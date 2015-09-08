@@ -1,0 +1,8 @@
+#jinja2:lstrip_blocks: True
+{% for node in zookeeper_nodes %}
+  {% if ansible_hostname == node %}
+{{ loop.index }}
+    {% break %}
+  {% endif %}
+{% endfor %}
+  

@@ -1,0 +1,75 @@
+---
+
+- hosts: all
+  sudo: yes
+  tasks:
+    - name: update cache
+      apt:
+        update_cache: yes
+
+    - name: install common packages
+      apt:
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - emacs24-nox
+        - curl
+        - wget
+        - httpie
+
+- hosts: all
+  sudo: yes
+  vars:
+    mesos_version: 0.23.0
+    mesos_checksums:
+      0.23.0: b967355ec1f7cf9ffcef76b58939ed48dd4975ea90d1c976669b50c589bdbdec
+
+  tasks:
+
+    - name: add mesos key
+      apt_key:
+        keyserver: keyserver.ubuntu.com
+        id: E56151BF
+        state: present
+
+    - name: add mesosphere repository
+      apt_repository:
+        repo: >-
+          deb http://repos.mesosphere.com/ubuntu trusty main
+
+    - name: update cache
+      apt:
+        update_cache: yes
+
+    - name: install packages
+      apt:
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - mesosphere
+
+- hosts: zookeeper
+  sudo: yes
+  vars:
+    zookeeper_nodes: "{{ groups['zookeeper'] }}"
+    zookeeper_node_iface: ansible_eth1
+
+  tasks:
+
+    - name: set instance id
+      template:
+        src: myid.j2
+        dest: /etc/zookeeper/conf/myid
+      tags: zk_conf
+
+    - name: configure
+      template:
+        src: zoo.cfg.j2
+        dest: /etc/zookeeper/conf/zoo.cfg
+      tags: zk_conf
+
+    - name: restart zookeeper
+      service:
+        name: zookeeper
+        state: restarted
+      tags: zk_conf
