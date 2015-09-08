@@ -5,3 +5,5 @@ venv
 inventory.txt
 .vagrant
 ssh-config
+zk_url.txt
+*.pyc
