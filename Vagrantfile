@@ -23,12 +23,12 @@ end
 
 
 def insert_key?(config, definition, spec=SPEC)
-  pub_key_path = get_from_spec_with_defaults definition, 'pub_key_path', spec
-  key = File.readlines(pub_key_path).first.strip
+  key_path = get_from_spec_with_defaults definition, 'key_path', spec
+  pub_key  = `ssh-keygen -yf #{key_path}`.strip
 
   config.vm.provision 'shell', privileged: false do |shell|
     shell.inline = <<-SHELL
-      echo "#{key}" >> $HOME/.ssh/authorized_keys
+      echo "#{pub_key}" >> $HOME/.ssh/authorized_keys
     SHELL
   end
 

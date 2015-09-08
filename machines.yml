@@ -8,7 +8,6 @@ defaults:
   memory: 1024
   cpus: 1
   key_path: key
-  pub_key_path: key.pub
 
 inventory:
 
