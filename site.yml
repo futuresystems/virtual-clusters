@@ -6,6 +6,7 @@
     - name: update cache
       apt:
         update_cache: yes
+      tags: common
 
     - name: install common packages
       apt:
@@ -16,19 +17,16 @@
         - curl
         - wget
         - httpie
+      tags: common
 
     - name: set hosts
       copy:
         src: hosts
         dest: /etc/hosts
+      tags: common
 
 - hosts: all
   sudo: yes
-  vars:
-    mesos_version: 0.23.0
-    mesos_checksums:
-      0.23.0: b967355ec1f7cf9ffcef76b58939ed48dd4975ea90d1c976669b50c589bdbdec
-
   tasks:
 
     - name: add mesos key
@@ -36,15 +34,18 @@
         keyserver: keyserver.ubuntu.com
         id: E56151BF
         state: present
+      tags: mesos_repo
 
     - name: add mesosphere repository
       apt_repository:
         repo: >-
           deb http://repos.mesosphere.com/ubuntu trusty main
+      tags: mesos_repo
 
     - name: update cache
       apt:
         update_cache: yes
+      tags: mesos_repo
 
 - hosts: zookeeper
   sudo: yes
@@ -54,7 +55,6 @@
 
   tasks:
 
-
     - name: install packages
       apt:
         name: "{{ item }}"
@@ -63,6 +63,7 @@
         - zookeeper
         - zookeeper-bin
         - zookeeperd
+      tags: zk_install
 
     - name: set instance id
       template:
@@ -82,10 +83,25 @@
         state: restarted
       tags: zk_conf
 
+
+- hosts: all:!zookeeper
+  sudo: yes
+  tasks:
+
+    - name: disable zookeeper
+      copy:
+        content: manual
+        dest: "/etc/init/{{ item }}.override"
+      with_items:
+        - zookeeper
+        - mesos-master
+      tags: zk_conf
+
+
 - hosts: mesos_master:mesos_slave
   sudo: yes
   tasks:
-  
+
     - name: create dir
       file:
         path: /etc/mesos
@@ -115,8 +131,7 @@
         state: present
       with_items:
         - mesos
-        - marathon
-        - zookeeper
+      tags: mesos_install
 
     - name: set quorum
       copy:
@@ -124,7 +139,7 @@
         dest: /etc/mesos-master/quorum
       tags: mesos_conf
 
-    - name: set hostname
+    - name: set mesos hostname
       copy:
         content: "{{ ansible_eth1.ipv4.address }}"
         dest: /etc/mesos-master/hostname
@@ -132,24 +147,42 @@
 
     - name: start services
       service:
-        name: "{{ item }}"
+        name: mesos-master
         state: restarted
-      with_items:
-        - mesos-master
-        - marathon
       tags: mesos_service
+
+- hosts: marathon
+  sudo: yes
+  tasks:
+
+    - name: install marathon
+      apt:
+        name: marathon
+        state: present
+      tags: marathon_install
+
+    - name: make marathon conf dir
+      file:
+        path: /etc/marathon/conf
+        state: directory
+      tags: marathon_conf
+
+    - name: set marathon hostname
+      copy:
+        content: "{{ ansible_eth1.ipv4.address }}"
+        dest: /etc/marathon/conf/hostname
+      tags: marathon_conf
+
+    - name: start services
+      service:
+        name: marathon
+        state: restarted
+      tags: marathon_service
+
 
 - hosts: mesos_slave
   sudo: yes
   tasks:
-
-    - name: disable zookeeper
-      copy:
-        content: manual
-        dest: "/etc/init/{{ item }}.override"
-      with_items:
-        - zookeeper
-        - mesos-master
 
     - name: install packages
       apt:
