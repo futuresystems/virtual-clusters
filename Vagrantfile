@@ -3,7 +3,6 @@ require 'yaml'
 SPEC_FILE = 'machines.yml'
 SPEC = YAML.load_file(SPEC_FILE)
 INVENTORY_FILE = 'inventory.txt'
-ZK_URL_FILE = 'zk_url.txt'
 HOSTS_FILE = 'hosts'
 
 def get_from_spec_with_defaults(definition, attr, spec=SPEC)
@@ -93,5 +92,4 @@ end
 
 
 print `./scripts/mkInventory #{SPEC_FILE} | tee #{INVENTORY_FILE}`
-`./scripts/mkZookeeperUrl #{SPEC_FILE} > #{ZK_URL_FILE}`
-`./scripts/mkHosts #{SPEC_FILE} > #{HOSTS_FILE}`
+`./scripts/mkHosts  #{SPEC_FILE} > #{HOSTS_FILE}`
