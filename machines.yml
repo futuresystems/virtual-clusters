@@ -9,6 +9,7 @@ defaults:
   cpus: 1
   key_path: key
   zk_port: 2181
+  domain_name: local
 
 machines:
 

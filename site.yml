@@ -17,6 +17,11 @@
         - wget
         - httpie
 
+    - name: set hosts
+      copy:
+        src: hosts
+        dest: /etc/hosts
+
 - hosts: all
   sudo: yes
   vars:
