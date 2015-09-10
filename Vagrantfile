@@ -25,12 +25,37 @@ def set_node_property?(config, definition, attr, spec=SPEC)
 end
 
 
-def insert_key?(config, definition, spec=SPEC)
-  key_path = get_from_spec_with_defaults definition, 'key_path', spec
-  pub_key  = `ssh-keygen -yf #{key_path}`.strip
+def get_public_key(private_key_path)
+  # if ssh-agent is running, use it to get the public key
+  if ENV.has_key? 'SSH_AGENT_PID' then
+    cmd = "ssh-add -L | grep #{private_key_path}"
+  else
+    cmd = "ssh-keygen -yf #{private_key_path}"
+  end
 
+  pub_key = `#{cmd}`.strip
+
+  if $? != 0 then
+    raise IOError, "Command '#{cmd}' failed with #{$?}"
+  end
+
+  if pub_key.empty? then
+    raise RuntimeError, "Got empty string for public key using '#{cmd}'"
+  end
+
+  return pub_key
+
+end
+
+def insert_key?(config, definition, spec=SPEC)
   config.vm.provision 'shell', privileged: false do |shell|
+
+    key_path = get_from_spec_with_defaults definition, 'key_path', spec
+    key_path = File.expand_path key_path
+    pub_key  = get_public_key key_path
+
     shell.inline = <<-SHELL
+      echo "key: #{key_path}"
       echo "#{pub_key}" >> $HOME/.ssh/authorized_keys
     SHELL
   end
