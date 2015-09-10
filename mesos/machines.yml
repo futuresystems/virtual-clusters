@@ -7,7 +7,7 @@ defaults:
   netmask: 255.255.0.0
   memory: 1024
   cpus: 1
-  key_path: key
+  key_path: ~/.ssh/id_rsa
   zk_port: 2181
   domain_name: local
 
