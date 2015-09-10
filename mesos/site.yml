@@ -180,6 +180,42 @@
       tags: marathon_service
 
 
+- hosts: chronos
+  sudo: yes
+  vars:
+
+    chronos_http_port: 8081
+    chronos_zk_path: /chronos
+    chronos_zk_port: 2181
+    chronos_zk_hosts: >-
+      {{ hostvars[groups.mesos_master[0]].ansible_eth1.ipv4.address }}:{{ chronos_zk_port }}
+
+  tasks:
+
+    - name: install chronos
+      apt:
+        name: chronos
+        state: present
+      tags: chronos_install
+
+    - name: set chronos hostname
+      copy:
+        content: "{{ ansible_eth1.ipv4.address }}"
+        dest: /etc/chronos/conf/hostname
+      tags: chronos_conf
+
+    - name: set chronos http_port
+      copy:
+        content: "{{ chronos_http_port }}"
+        dest: /etc/chronos/conf/http_port
+      tags: chronos_conf
+
+    - name: start chronos
+      service:
+        name: chronos
+        state: restarted
+      tags: chronos_service
+
 - hosts: mesos_slave
   sudo: yes
   tasks:
