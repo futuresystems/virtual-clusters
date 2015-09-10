@@ -22,13 +22,19 @@ machines:
   - name: zk3
     ip: 10.0.0.12
 
-  - name: mesos1
+  - name: master1
     ip: 10.0.1.10
 
-  - name: node1
+  - name: master2
+    ip: 10.0.1.11
+
+  - name: master3
+    ip: 10.0.1.12
+
+  - name: slave1
     ip: 10.0.2.10
 
-  - name: node2
+  - name: slave2
     ip: 10.0.2.11
 
 inventory:
@@ -41,11 +47,13 @@ inventory:
     - zk2
     - zk3
 
-  - mesos:
+  - mesos_master:
 
-    - mesos1
+    - master1
+    - master2
+    - master3
 
-  - nodes:
+  - mesos_slave:
 
-    - node1
-    - node2
+    - slave1
+    - slave2

@@ -46,13 +46,6 @@
       apt:
         update_cache: yes
 
-    - name: install packages
-      apt:
-        name: "{{ item }}"
-        state: present
-      with_items:
-        - mesosphere
-
 - hosts: zookeeper
   sudo: yes
   vars:
@@ -60,6 +53,16 @@
     zookeeper_node_iface: ansible_eth1
 
   tasks:
+
+
+    - name: install packages
+      apt:
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - zookeeper
+        - zookeeper-bin
+        - zookeeperd
 
     - name: set instance id
       template:
@@ -78,3 +81,90 @@
         name: zookeeper
         state: restarted
       tags: zk_conf
+
+- hosts: mesos_master:mesos_slave
+  sudo: yes
+  tasks:
+  
+    - name: create dir
+      file:
+        path: /etc/mesos
+        state: directory
+      tags: zk_conf
+
+    - name: set zookeeper location
+      copy:
+        dest: /etc/mesos/zk
+        src: zk_url.txt
+      tags: zk_conf
+
+
+- hosts: mesos_master
+  sudo: yes
+  vars:
+    mesos_zk_node_iface: ansible_eth1
+    mesos_zk_port: 2181
+    mesos_quorum: >-
+      {{ ((groups.mesos_master | length) / 2) | round(method='ceil') | int }}
+
+  tasks:
+
+    - name: install packages
+      apt:
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - mesos
+        - marathon
+        - zookeeper
+
+    - name: set quorum
+      copy:
+        content: "{{ mesos_quorum }}"
+        dest: /etc/mesos-master/quorum
+      tags: mesos_conf
+
+    - name: set hostname
+      copy:
+        content: "{{ ansible_eth1.ipv4.address }}"
+        dest: /etc/mesos-master/hostname
+      tags: mesos_conf
+
+    - name: start services
+      service:
+        name: "{{ item }}"
+        state: restarted
+      with_items:
+        - mesos-master
+        - marathon
+      tags: mesos_service
+
+- hosts: mesos_slave
+  sudo: yes
+  tasks:
+
+    - name: disable zookeeper
+      copy:
+        content: manual
+        dest: "/etc/init/{{ item }}.override"
+      with_items:
+        - zookeeper
+        - mesos-master
+
+    - name: install packages
+      apt:
+        name: mesos
+        state: present
+
+    - name: set hostname
+      copy:
+        content: "{{ ansible_eth1.ipv4.address }}"
+        dest: /etc/mesos-slave/hostname
+      tags: mesos_conf
+
+
+    - name: start services
+      service:
+        name: mesos-slave
+        state: restarted
+      tags: mesos_service
