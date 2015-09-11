@@ -1,0 +1,27 @@
+# The main playbook to run in order to deploy the virtual cluster
+
+- name: common
+  hosts: all
+  sudo: yes
+  tasks:
+    - name: common | update cache
+      apt:
+        update_cache: yes
+      tags: common
+
+    - name: common | install common packages
+      apt:
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - emacs24-nox
+        - curl
+        - wget
+        - httpie
+      tags: common
+
+    - name: common | set hosts
+      copy:
+        src: hosts
+        dest: /etc/hosts
+      tags: common

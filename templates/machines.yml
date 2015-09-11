@@ -1,0 +1,47 @@
+
+vagrant:
+  provider: libvirt
+  box: baremettle/ubuntu-14.04
+
+# default variables that can be overridden in the `machines` section
+# elements
+defaults:
+  netmask: 255.255.0.0
+  memory: 1024
+  cpus: 1
+  key_path: ~/.ssh/id_rsa
+  domain_name: local
+
+machines:
+
+  - name: master1
+    ip: 10.0.1.10
+
+  - name: master2
+    ip: 10.0.1.11
+
+  - name: slave1
+    ip: 10.0.2.10
+
+  - name: slave2
+    ip: 10.0.2.11
+
+
+inventory:
+
+  # These entries are processed to form the ansible inventory file.
+  # lists are used to preserve order in the generated inventory file
+
+  - group1:
+      - master1
+
+  - group2:
+      - master1
+      - master2
+
+  - group3:
+      - slave1
+
+  - group4:
+      - slave1
+      - slave2
