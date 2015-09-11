@@ -15,14 +15,24 @@ EOF
 
 name="$1"
 
-if [ -z "$name" ]; then
-    usage
-    exit 1
+case "$name" in
+    ""|"-h"|"--help")
+        usage
+        exit 1
+        ;;
+    *)
+        ;;
+esac
+
+if test -d "$name"; then
+    echo "$name already exists!"
+    exit 2
 fi
 
-test -d "$name" || mkdir -p "$name"
-cd "$name"
+mkdir -p "$name"
 
+set -x
+cd "$name"
 cp ../templates/ansible.cfg .
 cp ../templates/deploy-extra.sh .
 cp ../templates/machines.yml .
