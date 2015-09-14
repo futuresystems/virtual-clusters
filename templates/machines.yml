@@ -11,6 +11,7 @@ defaults:
   cpus: 1
   key_path: ~/.ssh/id_rsa
   domain_name: local
+  extra_disks: []
 
 machines:
 

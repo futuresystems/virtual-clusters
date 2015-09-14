@@ -5,6 +5,17 @@ SPEC = YAML.load_file(SPEC_FILE)
 INVENTORY_FILE = 'inventory.txt'
 HOSTS_FILE = 'hosts'
 
+PROVIDER_DEFAULTS = {
+  :libvirt => {
+    :storage => {
+      :size => '10G',
+      :type => 'qcow2',
+      :bus  => 'virtio',
+      :cache => 'default'
+    }
+  }
+}
+
 def get_from_spec_with_defaults(definition, attr, spec=SPEC)
   if definition.has_key?(attr)
       definition[attr]
@@ -62,6 +73,53 @@ def insert_key?(config, definition, spec=SPEC)
 end
 
 
+def set_node_storage_libvirt(config, disk_definition)
+
+  defaults = PROVIDER_DEFAULTS[:libvirt][:storage]
+
+  config.vm.provider :libvirt do |libvirt|
+    options = {
+      :size  => disk_definition.fetch('size', defaults[:size]),
+      :type  => disk_definition.fetch('type', defaults[:type]),
+      :bus   => disk_definition.fetch('bus', defaults[:bus]),
+      :cache => disk_definition.fetch('cache', defaults[:cache])
+    }
+
+    if disk_definition.has_key? 'device' then
+      options[:device] = disk_definition['device']
+    end
+
+    libvirt.storage(:file, **options)
+
+  end
+
+end
+
+
+def set_node_storage?(config, definition, spec=SPEC)
+
+  extra_disks = get_from_spec_with_defaults definition, 'extra_disks', spec
+
+  if extra_disks.nil? then
+    return
+  end
+
+  provider = spec['vagrant']['provider']
+
+  case provider
+  when "libvirt"
+    add_disk = :set_node_storage_libvirt
+  else
+    raise RuntimeError, "Unknown provider #{provider}"
+  end
+
+  extra_disks.each do |disk|
+    send add_disk, config, disk
+  end
+
+end
+
+
 Vagrant.configure(2) do |config|
 
   config.vm.box = SPEC['vagrant']['box']
@@ -82,8 +140,10 @@ Vagrant.configure(2) do |config|
       set_node_property? config, machine, "memory"
       set_node_property? config, machine, "cpus"
       set_node_property? config, machine, "nested"
-        
+      set_node_storage? config, machine        
+
       insert_key? config, machine
+
 
     end
   end
