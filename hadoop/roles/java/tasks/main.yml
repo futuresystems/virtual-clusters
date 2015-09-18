@@ -1,0 +1,7 @@
+---
+
+- name: install java
+  apt:
+    name: "{{ java_package }}"
+    state: present
+  tags: java

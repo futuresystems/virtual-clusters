@@ -1,0 +1,93 @@
+---
+
+- name: update cache
+  apt:
+    update_cache: yes
+  tags: common
+
+- name: install packages
+  apt:
+    name: "{{ item }}"
+    state: present
+  with_items: "{{ package_list }}"
+  tags:
+    - common
+    - packages
+
+- name: set hosts
+  copy:
+    src: hosts
+    dest: /etc/hosts
+  tags:
+    - common
+    - network
+
+- name: ensure services running
+  service:
+    name: "{{ item }}"
+    state: running
+  with_items: services_running
+  tags:
+    - common
+    - services
+
+- name: create users
+  user:
+    name: "{{ item.name }}"
+    groups: "{{ item.groups | default('') }}"
+    createhome: "{{ item.createhome | default(True) }}"
+    shell: "{{ item.shell | default('/bin/sh') }}"
+    state: "{{ item.state | default('present') }}"
+  with_items: users
+  tags:
+    - common
+    - users
+
+- name: add authorized key
+  authorized_key:
+    key: "{{ item.key }}"
+    user: "{{ item.user }}"
+    exclusive: "{{ item.exclusive | default(False) }}"
+  with_items: authorized_keys
+  tags:
+    - common
+    - ssh
+
+- name: ensure ssh directory
+  no_log: yes
+  file:
+    path: "/home/{{ item.user }}/.ssh"
+    state: directory
+    owner: "{{ item.user }}"
+    group: "{{ item.user }}"
+    mode: 0700
+  with_items: private_keys
+  tags:
+    - common
+    - ssh    
+
+- name: add private keys
+  no_log: yes
+  copy:
+    dest:
+      "/home/{{ item.user }}/.ssh/{{ item.name | default('id_rsa') }}"
+    content: "{{ item.key }}"
+    owner: "{{ item.user }}"
+    group: "{{ item.user }}"
+    mode: 0600
+  with_items: private_keys
+  tags:
+    - common
+    - ssh
+
+- name: create additional directories
+  file:
+    path: "{{ item.key }}"
+    owner: "{{ item.value.owner }}"
+    group: "{{ item.value.group }}"
+    mode: "{{ item.value.mode | default('0700') }}"
+    state: directory
+  with_dict: directories
+  tags:
+    - common
+    - directories

@@ -1,0 +1,68 @@
+
+vagrant:
+  provider: libvirt
+  box: baremettle/ubuntu-14.04
+
+# default variables that can be overridden in the `machines` section
+# elements
+defaults:
+  netmask: 255.255.0.0
+  memory: 1024
+  cpus: 1
+  key_path: ~/.ssh/id_rsa
+  domain_name: local
+  extra_disks: []
+  zk_port: 2181
+
+machines:
+
+  - name: master1
+    ip: 10.0.1.10
+
+  - name: master2
+    ip: 10.0.1.11
+
+  - name: master3
+    ip: 10.0.1.12
+
+  - name: slave1
+    ip: 10.0.2.10
+    extra_disks:
+      - device: vdb
+        size: 10G
+
+  - name: slave2
+    ip: 10.0.2.11
+    extra_disks:
+      - device: vdb
+        size: 10G
+
+  - name: slave3
+    ip: 10.0.2.12
+    extra_disks:
+      - device: vdb
+        size: 10G
+
+
+inventory:
+
+  # These entries are processed to form the ansible inventory file.
+  # lists are used to preserve order in the generated inventory file
+
+  - master:
+      - master1
+      - master2
+      - master3
+
+  - namenodes: &namenodes
+      - master1
+
+  - datanodes: &datanodes
+      - slave1
+      - slave2
+      - slave3
+
+  - hadoop_nodes:
+      ^CONCAT^:
+        - *namenodes
+        - *datanodes

@@ -1,0 +1,12 @@
+---
+
+hadoop_home: "{{ ansible_env.PWD }}/hadoop"
+hadoop_cfg_path: "{{ hadoop_home }}/etc/hadoop"
+
+core_site: {}
+
+hdfs_site: {}
+
+yarn_site: {}
+
+mapred_site: {}

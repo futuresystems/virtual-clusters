@@ -1,0 +1,91 @@
+---
+
+- name: common
+  hosts: all
+  sudo: yes
+  roles:
+
+    - role: common
+
+      package_list:
+        - emacs24-nox
+        - curl
+        - httpie
+        - ssh
+        - rsync
+
+      services_running:
+        - ssh
+
+      users:
+        - name: hadoop
+          shell: /bin/bash
+
+      authorized_keys:
+        - user: hadoop
+          key: "{{ hadoop.key_public }}"
+        - user: hadoop
+          key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+
+      private_keys:
+        - user: hadoop
+          key: "{{ hadoop.key_private }}"
+
+      directories:
+        /hdfs:
+          owner: hadoop
+          group: hadoop
+
+    - role: limits
+
+      limits_conf_d_files:
+        hadoop.conf:
+          - domain: hadoop
+            type: soft
+            item: nofile
+            value: 65535
+          - domain: hadoop
+            type: hard
+            item: nofile
+            value: 65535
+
+
+- name: hadoop common
+  hosts: hadoop_nodes
+  sudo: yes
+  roles:
+    - role: java
+
+
+- name: hadoop common
+  hosts: hadoop_nodes
+  user: hadoop
+  roles:
+    - role: hadoop_install
+    - role: hadoop_configure
+
+      core_site:
+        fs.default.name: &default_name
+          hdfs://{{ hostvars[groups['namenodes'][0]].ansible_fqdn }}:9000
+        fs.defaultFS: *default_name
+        io.file.buffer.size: 131072
+
+
+- name: namenodes
+  hosts: namenodes
+  user: hadoop
+  roles:
+    - role: hadoop_configure
+
+      hdfs_site:
+        dfs.namenode.name.dir: file:///hdfs/nn
+
+
+- name: datanodes
+  hosts: datanodes
+  user: hadoop
+  roles:
+    - role: hadoop_configure
+
+      hdfs_site:
+        dfs.datanode.data.dir: file:///hdfs/dn

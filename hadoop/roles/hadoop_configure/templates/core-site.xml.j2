@@ -1,0 +1,16 @@
+#jinja2:lstrip_blocks: True
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+
+<!-- {{ ansible_managed }} -->
+
+<configuration>
+
+  {% for name, value in core_site.iteritems() %}  
+    <property>
+      <name>{{ name }}</name>
+      <value>{{ value }}</value>
+    </property>
+  {% endfor %}  
+
+</configuration>
