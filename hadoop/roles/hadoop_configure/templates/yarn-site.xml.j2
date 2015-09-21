@@ -6,7 +6,7 @@
 
 <configuration>
 
-  {% for name, value in hdfs_site.iteritems() %}  
+  {% for name, value in yarn_site.iteritems() %}  
     <property>
       <name>{{ name }}</name>
       <value>{{ value }}</value>

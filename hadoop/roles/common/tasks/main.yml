@@ -44,6 +44,7 @@
     - users
 
 - name: add authorized key
+  when: authorized_keys | length > 0
   authorized_key:
     key: "{{ item.key }}"
     user: "{{ item.user }}"

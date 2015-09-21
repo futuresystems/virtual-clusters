@@ -1,5 +1,13 @@
 ---
 
+- name: clear configuration
+  when: clear_configs | length > 0
+  copy:
+    src: empty-site.xml
+    dest: "{{ hadoop_cfg_path }}/{{ item }}"
+  with_items: clear_configs
+  tags: hadoop_configure
+
 - name: configure core-site.xml
   when: core_site | length > 0
   template:
@@ -20,6 +28,8 @@
     src: yarn-site.xml.j2
     dest: "{{ hadoop_cfg_path }}/yarn-site.xml"
   tags: hadoop_configure
+
+- debug: var=mapred_site
 
 - name: configure mapred-site.xml
   when: mapred_site | length > 0

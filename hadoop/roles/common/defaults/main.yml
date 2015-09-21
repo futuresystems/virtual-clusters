@@ -15,4 +15,6 @@ users: []
 # required: `user`, `key` attributed
 authorized_keys: ''
 
+private_keys: []
+
 directories: {}

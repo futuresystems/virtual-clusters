@@ -13,9 +13,17 @@
         - httpie
         - ssh
         - rsync
+        - parted
 
       services_running:
         - ssh
+
+- name: common
+  hosts: hadoop_nodes
+  sudo: yes
+  roles:
+
+    - role: common
 
       users:
         - name: hadoop
@@ -50,12 +58,57 @@
             value: 65535
 
 
+- name: storage
+  hosts: datanodes
+  sudo: yes
+  tasks:
+
+    - name: storage | create partition label
+      command: parted -s /dev/vdb mklabel gpt creates=/dev/vdb1
+      tags: storage
+
+    - name: storage | create partition
+      command: parted -s /dev/vdb mkpart primary ext3 0% 100% creates=/dev/vdb1
+      tags: storage
+
+    - name: storage | format disks
+      filesystem:
+        dev: /dev/vdb1
+        fstype: ext3
+      tags: storage
+
+    - name: storage | mount
+      mount:
+        name: /hdfs
+        src: /dev/vdb1
+        fstype: ext3
+        state: "{{ item }}"
+      with_items: [present, mounted]
+      tags: storage
+
+    - name: storage | fix permissions
+      file:
+        path: /hdfs
+        owner: hadoop
+        group: hadoop
+        recurse: yes
+      tags: storage
+
+
+- name: zookeeper
+  hosts: zookeeper
+  sudo: yes
+  roles:
+    - role: zookeeper
+      zookeeper_node_iface: ansible_eth1
+      zookeeper_nodes: "{{ groups['zookeeper'] }}"
+
 - name: hadoop common
   hosts: hadoop_nodes
   sudo: yes
   roles:
     - role: java
-
+    
 
 - name: hadoop common
   hosts: hadoop_nodes
@@ -64,28 +117,58 @@
     - role: hadoop_install
     - role: hadoop_configure
 
+      clear_configs:
+        - core-site.xml
+        - hdfs-site.xml
+        - yarn-site.xml
+        - mapred-site.xml
+
       core_site:
-        fs.default.name: &default_name
-          hdfs://{{ hostvars[groups['namenodes'][0]].ansible_fqdn }}:9000
-        fs.defaultFS: *default_name
-        io.file.buffer.size: 131072
+        fs.defaultFS:
+          hdfs://futuresystems
+
+        # fs.default.name:
+        #   "hdfs://{{ hostvars[groups['namenodes'][0]].ansible_fqdn }}:9000"
 
 
-- name: namenodes
-  hosts: namenodes
-  user: hadoop
-  roles:
-    - role: hadoop_configure
 
       hdfs_site:
-        dfs.namenode.name.dir: file:///hdfs/nn
+        dfs.namenode.name.dir: file:///hdfs/namenode
 
+        # HA
+        dfs.nameservices: futuresystems
 
-- name: datanodes
-  hosts: datanodes
-  user: hadoop
-  roles:
-    - role: hadoop_configure
+        dfs.ha.namenodes.futuresystems: nn1,nn2
+        dfs.namenode.rpc-address.futuresystems.nn1:
+          "{{ hostvars[groups['namenodes'][0]].ansible_fqdn }}:8020"
+        dfs.namenode.rpc-address.futuresystems.nn2:
+          "{{ hostvars[groups['namenodes'][1]].ansible_fqdn }}:8020"
 
-      hdfs_site:
-        dfs.datanode.data.dir: file:///hdfs/dn
+        dfs.namenode.http-address.futuresystems.nn1:
+          "{{ hostvars[groups['namenodes'][0]].ansible_fqdn }}:50070"
+        dfs.namenode.http-address.futuresystems.nn2:
+          "{{ hostvars[groups['namenodes'][1]].ansible_fqdn }}:50070"
+
+        dfs.namenode.shared.edits.dir:
+          qjournal://master1.local:8485;master2.local:8485;master3.local:8485/futuresystems
+
+        # dfs.journalnode.edits.dir:
+
+        dfs.client.failover.proxy.provider.futuresystems:
+          "org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider"
+
+        dfs.ha.fencing.methods: sshfence
+        dfs.ha.fencing.ssh.private-key-files:
+          "{{ ansible_env.HOME }}/.ssh/id_rsa"
+          
+
+        dfs.ha.automatic-failover.enabled: "true"
+        ha.zookeeper.quorum: "{{ zookeeper_hosts }}"
+        
+
+        # journalnodes
+        dfs.journalnode.edits.dir:
+          /hdfs/journalnode
+
+        # datanodes
+        dfs.datanode.data.dir: file:///hdfs/datanode

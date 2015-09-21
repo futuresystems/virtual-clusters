@@ -16,6 +16,15 @@ defaults:
 
 machines:
 
+  - name: zk1
+    ip: 10.0.0.10
+
+  - name: zk2
+    ip: 10.0.0.11
+
+  - name: zk3
+    ip: 10.0.0.12
+
   - name: master1
     ip: 10.0.1.10
 
@@ -49,13 +58,19 @@ inventory:
   # These entries are processed to form the ansible inventory file.
   # lists are used to preserve order in the generated inventory file
 
-  - master:
-      - master1
-      - master2
-      - master3
+  - zookeeper: &zookeener
+      - zk1
+      - zk2
+      - zk3
 
   - namenodes: &namenodes
       - master1
+      - master2
+
+  - journalnodes: &journalnodes
+      - master1
+      - master2
+      - master3
 
   - datanodes: &datanodes
       - slave1
@@ -66,3 +81,19 @@ inventory:
       ^CONCAT^:
         - *namenodes
         - *datanodes
+        - *journalnodes
+
+
+hostvars:
+  zk1:
+    zk_id: 1
+  zk2:
+    zk_id: 2
+  zk3:
+    zk_id: 3
+
+
+groupvars:
+  hadoop_nodes:
+    zookeeper_hosts:
+      zk1.local:2181,zk2.local:2181,zk3.local:2181

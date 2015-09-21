@@ -28,9 +28,10 @@
   lineinfile:
     dest: ".bashrc"
     line: "export {{ item }}"
+    insertbefore: BOF
   with_items:
-    - JAVA_HOME=$(dirname $(dirname $(dirname $(update-alternatives --list java))))
-    - HADOOP_HOME={{ hadoop_home }}
-    - PATH=$PATH:$HADOOP_HOME/bin:$HADOOP_HOME/sbin
     - HADOOP_PID_DIR=$HADOOP_HOME/pid
+    - PATH=$PATH:$HADOOP_HOME/bin:$HADOOP_HOME/sbin
+    - HADOOP_HOME={{ hadoop_home }}
+    - JAVA_HOME=$(dirname $(dirname $(dirname $(update-alternatives --list java))))
   tags: hadoop_install
