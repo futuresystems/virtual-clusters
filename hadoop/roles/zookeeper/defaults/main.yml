@@ -1,0 +1,8 @@
+---
+
+zk_id: 0
+
+zookeeper_node_iface: ansible_eth0
+
+zookeeper_nodes:
+  - localhost

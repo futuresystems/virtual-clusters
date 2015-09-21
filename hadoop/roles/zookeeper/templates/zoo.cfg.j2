@@ -1,0 +1,13 @@
+#jinja2:lstrip_blocks: True
+
+tickTime=2000
+initLimit=10
+syncLimit=5
+dataDir=/var/lib/zookeeper
+clientPort=2181
+
+{% for node in zookeeper_nodes %}
+server.{{ loop.index }}={{ hostvars[node][zookeeper_node_iface].ipv4.address }}:2888:3888
+{% endfor %}
+
+traceFile=/var/log/zookeeper/trace
