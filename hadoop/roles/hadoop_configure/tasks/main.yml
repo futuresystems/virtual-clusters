@@ -35,3 +35,4 @@
     src: mapred-site.xml.j2
     dest: "{{ hadoop_cfg_path }}/mapred-site.xml"
   tags: hadoop_configure
+

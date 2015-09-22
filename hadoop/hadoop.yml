@@ -18,6 +18,7 @@
       services_running:
         - ssh
 
+
 - name: common
   hosts: hadoop_nodes
   sudo: yes
@@ -132,13 +133,10 @@
         - yarn-site.xml
         - mapred-site.xml
 
+
       core_site:
         fs.defaultFS:
           hdfs://futuresystems
-
-        # fs.default.name:
-        #   "hdfs://{{ hostvars[groups['namenodes'][0]].ansible_fqdn }}:9000"
-
 
 
       hdfs_site:
