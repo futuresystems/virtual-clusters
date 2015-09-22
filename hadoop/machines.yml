@@ -95,5 +95,6 @@ hostvars:
 
 groupvars:
   hadoop_nodes:
+    dfs_replication: 3
     zookeeper_hosts:
       zk1.local:2181,zk2.local:2181,zk3.local:2181

@@ -142,6 +142,7 @@
 
       hdfs_site:
         dfs.namenode.name.dir: file:///hdfs/namenode
+        dfs.replication: "{{ dfs_replication }}"
 
         # HA
         dfs.nameservices: futuresystems
