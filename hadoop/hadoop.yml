@@ -181,3 +181,95 @@
 
         # datanodes
         dfs.datanode.data.dir: file:///hdfs/datanode
+
+
+## journal nodes need to be up for first_run to execute
+
+- name: journal nodes
+  hosts: journalnodes
+  sudo: yes
+  roles:
+
+    - role: supervisord
+      supervisord_programs:
+        journalnode:
+          command: bash -lc '. /home/hadoop/.bashrc; hdfs journalnode'
+          user: hadoop
+          stdout_logfile: /hdfs/journalnode/stdout.log
+          stderr_logfile: /hdfs/journalnode/stderr.log
+
+
+
+- name: init first name node
+  hosts: namenodes[0]
+  user: hadoop
+  tasks:
+
+    - name: namenode format
+      command: hdfs namenode -format -force
+      tags: first_run
+
+    - name: initialize shared edits
+      command: hdfs namenode -initializeSharedEdits -force
+      tags: first_run
+
+    - name: format zookeeper
+      command: hdfs zkfc -formatZK -force
+      tags: first_run
+
+    - name: run for nn2
+      command: hdfs namenode
+      async: 100
+      poll: 0
+      tags: first_run
+
+
+- name: init standby name node
+  hosts: namenodes[1]
+  user: hadoop
+  tasks:
+    - name: bootstrap standby node
+      command: hdfs namenode -bootstrapStandby -force
+      tags: first_run
+
+
+- name: cleanup
+  hosts: namenodes
+  user: hadoop
+  tasks:
+    - name: stop NameNode tasks
+      shell: for pid in $(jps | grep NameNode | cut -d' ' -f1); do kill $pid; done
+      tags: first_run
+
+
+- name: namenodes
+  hosts: namenodes
+  sudo: yes
+  roles:
+    - role: supervisord
+      supervisord_programs:
+
+        namenode:
+          command: bash -lc '. /home/hadoop/.bashrc; hdfs namenode'
+          user: hadoop
+          stdout_logfile: /hdfs/namenode/stdout.log
+          stderr_logfile: /hdfs/namenode/stderr.log
+
+        zkfc:
+          command: bash -lc '. /home/hadoop/.bashrc; hdfs zkfc'
+          user: hadoop
+          stdout_logfile: /hdfs/zkfc-stdout.log
+          stderr_logfile: /hdfs/zkfc-stderr.log
+
+
+- name: data nodes
+  hosts: datanodes
+  sudo: yes
+  roles:
+    - role: supervisord
+      supervisord_programs:
+        datanode:
+          command: bash -lc '. /home/hadoop/.bashrc; hdfs datanode'
+          user: hadoop
+          stdout_logfile: /hdfs/datanode/stdout.log
+          stderr_logfile: /hdfs/datanode/stderr.log
