@@ -52,6 +52,27 @@ machines:
       - device: vdb
         size: 10G
 
+  - name: slave4
+    ip: 10.0.2.13
+    extra_disks:
+      - device: vdb
+        size: 10G
+
+
+  - name: slave5
+    ip: 10.0.2.14
+    extra_disks:
+      - device: vdb
+        size: 10G
+
+
+  - name: slave6
+    ip: 10.0.2.15
+    extra_disks:
+      - device: vdb
+        size: 10G
+
+
 
 inventory:
 
@@ -72,16 +93,23 @@ inventory:
       - master2
       - master3
 
+  - historyserver: &historyserver
+      - master3
+
   - datanodes: &datanodes
       - slave1
       - slave2
       - slave3
+      - slave4
+      - slave5
+      - slave6
 
   - hadoop_nodes:
       ^CONCAT^:
         - *namenodes
         - *datanodes
         - *journalnodes
+        - *historyserver
 
 
 hostvars:
