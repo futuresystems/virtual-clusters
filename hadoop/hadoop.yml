@@ -116,6 +116,7 @@
   sudo: yes
   roles:
     - role: java
+    - role: supervisord
     
 
 - name: hadoop common
@@ -183,6 +184,24 @@
         dfs.datanode.data.dir: file:///hdfs/datanode
 
 
+      mapred_site:
+        mapred.job.tracker: master1.local:9001
+        mapreduce.jobtracker.restart.recover: 'true'
+
+
+- name: stop everything
+  hosts: hadoop_nodes
+  sudo: yes
+  tasks:
+
+    - name: stop supervisord
+      shell: supervisorctl stop all || echo -n
+      tags: stop
+
+    - name: stop everything
+      shell: killall -q -u hadoop java || echo -n
+      tags: stop
+
 ## journal nodes need to be up for first_run to execute
 
 - name: journal nodes
@@ -195,8 +214,8 @@
         journalnode:
           command: bash -lc '. /home/hadoop/.bashrc; hdfs journalnode'
           user: hadoop
-          stdout_logfile: /hdfs/journalnode/stdout.log
-          stderr_logfile: /hdfs/journalnode/stderr.log
+          stdout_logfile: /hdfs/journalnode-stdout.log
+          stderr_logfile: /hdfs/journalnode-stderr.log
 
 
 
@@ -252,8 +271,8 @@
         namenode:
           command: bash -lc '. /home/hadoop/.bashrc; hdfs namenode'
           user: hadoop
-          stdout_logfile: /hdfs/namenode/stdout.log
-          stderr_logfile: /hdfs/namenode/stderr.log
+          stdout_logfile: /hdfs/namenode-stdout.log
+          stderr_logfile: /hdfs/namenode-stderr.log
 
         zkfc:
           command: bash -lc '. /home/hadoop/.bashrc; hdfs zkfc'
@@ -271,5 +290,18 @@
         datanode:
           command: bash -lc '. /home/hadoop/.bashrc; hdfs datanode'
           user: hadoop
-          stdout_logfile: /hdfs/datanode/stdout.log
-          stderr_logfile: /hdfs/datanode/stderr.log
+          stdout_logfile: /hdfs/datanode-stdout.log
+          stderr_logfile: /hdfs/datanode-stderr.log
+
+
+- name: history server
+  hosts: historyserver
+  sudo: yes
+  roles:
+    - role: supervisord
+      supervisord_programs:
+        historyserver:
+          command: bash -lc '. ~hadoop/.bashrc; mapred historyserver'
+          user: hadoop
+          stdout_logfile: /hdfs/historyserver-stdout.log
+          stderr_logfile: /hdfs/historyserver-stderr.log

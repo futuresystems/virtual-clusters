@@ -7,3 +7,5 @@ _supervisord_service_name: supervisor
 _supervisord_conf_d_dir_debian: /etc/supervisor/conf.d
 
 supervisord_conf_d_dir: "{{ _supervisord_conf_d_dir_debian }}"
+
+supervisord_programs: {}
