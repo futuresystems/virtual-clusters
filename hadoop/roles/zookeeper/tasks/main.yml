@@ -8,7 +8,13 @@
   with_items:
     - zookeeper
     - zookeeper-bin
-    - zookeeperd
+  tags: zk_install
+
+- name: install zookeeper service
+  when: zookeeper_install_service
+  apt:
+    name: zookeeperd
+    state: present
   tags: zk_install
 
 - name: set instance id

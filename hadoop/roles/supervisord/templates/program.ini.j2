@@ -1,0 +1,4 @@
+[program:{{ item.key }}]
+{% for key, value in item.value.iteritems() %}
+{{ key }}={{ value }}
+{% endfor %}

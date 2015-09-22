@@ -1,0 +1,47 @@
+---
+
+- name: install supervisord
+  when: ansible_os_family == 'Debian'
+  apt:
+    name: supervisor
+    state: present
+  tags:
+    - supervisord
+    - install
+
+
+- name: enable on startup
+  service:
+    name: "{{ _supervisord_service_name }}"
+    enabled: "{{ supervisord_enable_on_startup }}"
+  tags:
+    - supervisord
+    - service
+
+
+- name: add programs
+  template:
+    src: program.ini.j2
+    dest: "{{ supervisord_conf_d_dir }}/{{ item.key }}.conf"
+  with_dict: supervisord_programs
+  tags:
+    - supervisord
+    - configure
+
+
+- name: reread configuration
+  command: supervisorctl reread
+  command: supervisorctl update
+  tags:
+    - supervisord
+    - service
+
+
+- name: start programs
+  supervisorctl:
+    name: "{{ item.key }}"
+    state: started
+  with_dict: supervisord_programs
+  tags:
+    - supervisord
+    - service

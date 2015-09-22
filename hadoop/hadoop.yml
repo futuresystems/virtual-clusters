@@ -103,6 +103,14 @@
       zookeeper_node_iface: ansible_eth1
       zookeeper_nodes: "{{ groups['zookeeper'] }}"
 
+    - role: supervisord
+      supervisord_programs:
+        zookeeper:
+          user: zookeeper
+          command: /usr/share/zookeeper/bin/zkServer.sh start-foreground
+          stdout_logfile: /var/log/zookeeper/stdout.log
+          stderr_logfile: /var/log/zookeeper/stderr.log
+
 - name: hadoop common
   hosts: hadoop_nodes
   sudo: yes
