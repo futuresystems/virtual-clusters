@@ -29,8 +29,6 @@
     dest: "{{ hadoop_cfg_path }}/yarn-site.xml"
   tags: hadoop_configure
 
-- debug: var=mapred_site
-
 - name: configure mapred-site.xml
   when: mapred_site | length > 0
   template:

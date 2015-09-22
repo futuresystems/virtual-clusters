@@ -18,7 +18,6 @@
     - supervisord
     - service
 
-
 - name: add programs
   template:
     src: program.ini.j2
