@@ -58,19 +58,20 @@ machines:
       - device: vdb
         size: 10G
 
-
   - name: slave5
     ip: 10.0.2.14
     extra_disks:
       - device: vdb
         size: 10G
 
-
   - name: slave6
     ip: 10.0.2.15
     extra_disks:
       - device: vdb
         size: 10G
+
+  - name: frontend
+    ip: 10.0.3.10
 
 
 
@@ -106,10 +107,14 @@ inventory:
 
   - hadoop_nodes:
       ^CONCAT^:
+        - [frontend]
         - *namenodes
         - *datanodes
         - *journalnodes
         - *historyserver
+
+  - frontend:
+      - frontend
 
 
 hostvars:

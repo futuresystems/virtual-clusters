@@ -10,3 +10,6 @@ hadoop_archive_sha256: 991dc34ea42a80b236ca46ff5d207107bcc844174df0441777248fdb6
 hadoop_archive_name: "hadoop-{{ hadoop_version }}{{ hadoop_archive_ext }}"
 hadoop_extracted_name: "hadoop-{{ hadoop_version }}"
 hadoop_home_name: hadoop
+
+hadoop_home_dir: /opt
+hadoop_home: "{{ hadoop_home_dir }}/{{ hadoop_home_name }}"

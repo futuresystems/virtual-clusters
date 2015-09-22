@@ -1,38 +1,74 @@
 ---
 
+- name: ensure configuration directory exists
+  file:
+    path: "{{ hadoop_cfg_path }}"
+    state: directory
+  tags:
+    - hadoop_configure
+    - hadoop
+    - configure
+
+
 - name: clear configuration
   when: clear_configs | length > 0
   copy:
     src: empty-site.xml
     dest: "{{ hadoop_cfg_path }}/{{ item }}"
   with_items: clear_configs
-  tags: hadoop_configure
+  notify: fix permissions
+  tags: 
+    - hadoop_configure
+    - hadoop
+    - configure
+
 
 - name: configure core-site.xml
   when: core_site | length > 0
   template:
     src: core-site.xml.j2
     dest: "{{ hadoop_cfg_path }}/core-site.xml"
-  tags: hadoop_configure
+  notify: fix permissions
+  tags: 
+    - hadoop_configure
+    - hadoop
+    - configure
+
 
 - name: configure hdfs-site.xml
   when: hdfs_site | length > 0
   template:
     src: hdfs-site.xml.j2
     dest: "{{ hadoop_cfg_path }}/hdfs-site.xml"
-  tags: hadoop_configure
+  notify: fix permissions
+  tags: 
+    - hadoop_configure
+    - hadoop
+    - configure
+
 
 - name: configure yarn-site.xml
   when: yarn_site | length > 0
   template:
     src: yarn-site.xml.j2
     dest: "{{ hadoop_cfg_path }}/yarn-site.xml"
-  tags: hadoop_configure
+  notify: fix permissions
+  tags: 
+    - hadoop_configure
+    - hadoop
+    - configure
+
 
 - name: configure mapred-site.xml
   when: mapred_site | length > 0
   template:
     src: mapred-site.xml.j2
     dest: "{{ hadoop_cfg_path }}/mapred-site.xml"
-  tags: hadoop_configure
+  notify: fix permissions
+  tags: 
+    - hadoop_configure
+    - hadoop
+    - configure
 
+
+  

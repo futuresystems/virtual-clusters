@@ -112,20 +112,17 @@
           stdout_logfile: /var/log/zookeeper/stdout.log
           stderr_logfile: /var/log/zookeeper/stderr.log
 
+
 - name: hadoop common
   hosts: hadoop_nodes
   sudo: yes
   roles:
     - role: java
     - role: supervisord
-    
-
-- name: hadoop common
-  hosts: hadoop_nodes
-  user: hadoop
-  roles:
-    - role: hadoop_install
+    - role: hadoop_install    
     - role: hadoop_configure
+
+      hadoop_cfg_path: /opt/hadoop/etc/hadoop
 
       clear_configs:
         - core-site.xml
@@ -217,36 +214,36 @@
 
 
 
-- name: init first name node
+- name: initialize namenodes 1
   hosts: namenodes[0]
   user: hadoop
   tasks:
 
     - name: namenode format
-      command: hdfs namenode -format -force
+      shell: . /etc/profile.d/hadoop.sh; hdfs namenode -format -force
       tags: first_run
 
     - name: initialize shared edits
-      command: hdfs namenode -initializeSharedEdits -force
+      shell: . /etc/profile.d/hadoop.sh; hdfs namenode -initializeSharedEdits -force
       tags: first_run
 
     - name: format zookeeper
-      command: hdfs zkfc -formatZK -force
+      shell: . /etc/profile.d/hadoop.sh; hdfs zkfc -formatZK -force
       tags: first_run
 
     - name: run for nn2
-      command: hdfs namenode
+      shell: . /etc/profile.d/hadoop.sh; hdfs namenode
       async: 100
       poll: 0
       tags: first_run
 
 
-- name: init standby name node
+- name: initialize namenodes 2
   hosts: namenodes[1]
   user: hadoop
   tasks:
     - name: bootstrap standby node
-      command: hdfs namenode -bootstrapStandby -force
+      shell: . /etc/profile.d/hadoop.sh; hdfs namenode -bootstrapStandby -force
       tags: first_run
 
 

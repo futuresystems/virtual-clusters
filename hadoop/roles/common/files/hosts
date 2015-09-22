@@ -9,3 +9,7 @@
 10.0.2.10 slave1 slave1.local
 10.0.2.11 slave2 slave2.local
 10.0.2.12 slave3 slave3.local
+10.0.2.13 slave4 slave4.local
+10.0.2.14 slave5 slave5.local
+10.0.2.15 slave6 slave6.local
+10.0.3.10 frontend frontend.local

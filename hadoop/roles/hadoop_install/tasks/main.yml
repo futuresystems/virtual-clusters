@@ -1,11 +1,5 @@
 ---
 
-- name: set hadoop_home
-  set_fact:
-    hadoop_home: "{{ ansible_env.PWD }}/{{ hadoop_home_name }}"
-  tags: hadoop_install
-  
-
 - name: fetch hadoop
   get_url:
     url: "{{ hadoop_url }}"
@@ -13,25 +7,64 @@
     sha256sum: "{{ hadoop_archive_sha256 }}"
   tags: hadoop_install
 
+
+- name: ensure installation destination
+  file:
+    path: "{{ hadoop_home_dir }}"
+    state: directory
+  tags:
+    - hadoop_install
+    - hadoop
+    - install
+
+
 - name: extract hadoop
-  command: tar xvf {{ hadoop_archive_name }} creates={{ hadoop_extracted_name }}
-  tags: hadoop_install
+  command: tar xvf {{ hadoop_archive_name }} -C {{ hadoop_home_dir }}
+  args:
+    creates: "{{ hadoop_home_dir }}/{{ hadoop_extracted_name }}"
+  tags:
+    - hadoop_install
+    - hadoop
+    - install
+
 
 - name: create symlink shortcut
   file:
-    src: "{{ ansible_env.PWD }}/{{ hadoop_extracted_name }}"
+    src: "{{ hadoop_home_dir }}/{{ hadoop_extracted_name }}"
     dest: "{{ hadoop_home }}"
     state: link
-  tags: hadoop_install
+  tags:
+    - hadoop_install
+    - hadoop
+    - install
+
+
+- name: fix permissions
+  file:
+    path: "{{ hadoop_home_dir }}/{{ hadoop_extracted_name }}"
+    owner: "{{ hadoop_user }}"
+    group: "{{ hadoop_group }}"
+    recurse: yes
+    state: directory
+  tags:
+    - hadoop_install
+    - hadoop
+    - install
+
 
 - name: set environment exports
   lineinfile:
-    dest: ".bashrc"
+    dest: "/etc/profile.d/hadoop.sh"
     line: "export {{ item }}"
-    insertbefore: BOF
+    create: yes
   with_items:
-    - HADOOP_PID_DIR=$HADOOP_HOME/pid
-    - PATH=$PATH:$HADOOP_HOME/bin:$HADOOP_HOME/sbin
-    - HADOOP_HOME={{ hadoop_home }}
     - JAVA_HOME=$(dirname $(dirname $(dirname $(update-alternatives --list java))))
-  tags: hadoop_install
+    - HADOOP_HOME={{ hadoop_home }}
+    - HADOOP_INSTALL=$HADOOP_HOME
+    - PATH=$PATH:$HADOOP_HOME/bin:$HADOOP_HOME/sbin
+    - HADOOP_PID_DIR=$HADOOP_HOME/pid
+  tags:
+    - hadoop_install
+    - hadoop
+    - install
+
