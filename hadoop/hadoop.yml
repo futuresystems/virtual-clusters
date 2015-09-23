@@ -18,17 +18,25 @@
       services_running:
         - ssh
 
+      groups_managed:
+        hadoopadmin:
+          gid: 1001
+        hadoopuser:
+          gid: 1002
 
-- name: common
+
+- name: common:!frontend
   hosts: hadoop_nodes
   sudo: yes
   roles:
 
     - role: common
 
-      users:
-        - name: hadoop
-          shell: /bin/bash
+      users_managed:
+        hadoop:
+          gid: 1001
+          groups: hadoopadmin
+          append: yes
 
       authorized_keys:
         - user: hadoop
@@ -91,7 +99,7 @@
       file:
         path: /hdfs
         owner: hadoop
-        group: hadoop
+        group: hadoopadmin
         recurse: yes
       tags: storage
 
@@ -119,7 +127,7 @@
   roles:
     - role: java
     - role: supervisord
-    - role: hadoop_install    
+    - role: hadoop_install
     - role: hadoop_configure
 
       hadoop_cfg_path: /opt/hadoop/etc/hadoop
@@ -139,6 +147,8 @@
       hdfs_site:
         dfs.namenode.name.dir: file:///hdfs/namenode
         dfs.replication: "{{ dfs_replication }}"
+        dfs.permissions.enabled: "true"
+        dfs.permissions.superusergroup: hadoop,hadoopadmin
 
         # HA
         dfs.nameservices: futuresystems
@@ -157,19 +167,15 @@
         dfs.namenode.shared.edits.dir:
           qjournal://master1.local:8485;master2.local:8485;master3.local:8485/futuresystems
 
-        # dfs.journalnode.edits.dir:
-
         dfs.client.failover.proxy.provider.futuresystems:
           "org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider"
 
         dfs.ha.fencing.methods: sshfence
         dfs.ha.fencing.ssh.private-key-files:
           "{{ ansible_env.HOME }}/.ssh/id_rsa"
-          
 
         dfs.ha.automatic-failover.enabled: "true"
         ha.zookeeper.quorum: "{{ zookeeper_hosts }}"
-        
 
         # journalnodes
         dfs.journalnode.edits.dir:
@@ -207,7 +213,7 @@
     - role: supervisord
       supervisord_programs:
         journalnode:
-          command: bash -lc '. /home/hadoop/.bashrc; hdfs journalnode'
+          command: bash -l -c 'hdfs journalnode'
           user: hadoop
           stdout_logfile: /hdfs/journalnode-stdout.log
           stderr_logfile: /hdfs/journalnode-stderr.log
@@ -264,13 +270,13 @@
       supervisord_programs:
 
         namenode:
-          command: bash -lc '. /home/hadoop/.bashrc; hdfs namenode'
+          command: bash -l -c 'hdfs namenode'
           user: hadoop
           stdout_logfile: /hdfs/namenode-stdout.log
           stderr_logfile: /hdfs/namenode-stderr.log
 
         zkfc:
-          command: bash -lc '. /home/hadoop/.bashrc; hdfs zkfc'
+          command: bash -l -c 'hdfs zkfc'
           user: hadoop
           stdout_logfile: /hdfs/zkfc-stdout.log
           stderr_logfile: /hdfs/zkfc-stderr.log
@@ -283,7 +289,7 @@
     - role: supervisord
       supervisord_programs:
         datanode:
-          command: bash -lc '. /home/hadoop/.bashrc; hdfs datanode'
+          command: bash -l -c 'hdfs datanode'
           user: hadoop
           stdout_logfile: /hdfs/datanode-stdout.log
           stderr_logfile: /hdfs/datanode-stderr.log
@@ -296,7 +302,49 @@
     - role: supervisord
       supervisord_programs:
         historyserver:
-          command: bash -lc '. ~hadoop/.bashrc; mapred historyserver'
+          command: bash -l -c 'mapred historyserver'
           user: hadoop
           stdout_logfile: /hdfs/historyserver-stdout.log
           stderr_logfile: /hdfs/historyserver-stderr.log
+
+
+- name: frontend
+  hosts: frontend
+  sudo: yes
+  roles:
+    - role: common
+      users_managed:
+        user1:
+          groups: hadoopuser
+        user2:
+          groups: hadoopuser
+
+
+- name: multi user setup
+  hosts: datanodes[0]
+  user: hadoop
+  tasks:
+    - name: fix permissions in hdfs:///tmp
+      shell: bash -l -c "hadoop fs -chmod -R 1777 /tmp"
+      tags: hadoop_users
+
+    - name: create users
+      shell: bash -lc "hadoop fs -mkdir -p /user/{{ item }}"
+      with_items:
+        - user1
+        - user2
+      tags: hadoop_users
+
+    - name: fix access mode on user directories
+      shell: bash -lc "hadoop fs -chmod 700 /user/{{ item }}"
+      with_items:
+        - user1
+        - user2
+      tags: hadoop_users
+
+    - name: fix ownership on user directories
+      shell: bash -lc "hadoop fs -chown -R {{ item }}:{{ item }} /user/{{ item }}"
+      with_items:
+        - user1
+        - user2
+      tags: hadoop_users

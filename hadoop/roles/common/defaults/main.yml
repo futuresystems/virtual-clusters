@@ -9,7 +9,9 @@ services_running: []
 #param: users to create :: [dict]
 # accepts the 'groups', 'createhome', and 'state' parameters of the
 # `user` ansible module
-users: []
+users_managed: {}
+
+groups_managed: {}
 
 #param: authorized_keys to inject :: [dict]
 # required: `user`, `key` attributed

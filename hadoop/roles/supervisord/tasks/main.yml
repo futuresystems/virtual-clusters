@@ -6,6 +6,7 @@
     name: supervisor
     state: present
   tags:
+    - supervisord_install
     - supervisord
     - install
 
@@ -15,6 +16,7 @@
     name: "{{ _supervisord_service_name }}"
     enabled: "{{ supervisord_enable_on_startup }}"
   tags:
+    - supervisord_service
     - supervisord
     - service
 
@@ -24,6 +26,7 @@
     dest: "{{ supervisord_conf_d_dir }}/{{ item.key }}.conf"
   with_dict: supervisord_programs
   tags:
+    - supervisord_configure
     - supervisord
     - configure
 
@@ -32,6 +35,7 @@
   command: supervisorctl reread
   command: supervisorctl update
   tags:
+    - supervisord_service
     - supervisord
     - service
 
@@ -42,5 +46,6 @@
     state: started
   with_dict: supervisord_programs
   tags:
+    - supervisord_service
     - supervisord
     - service

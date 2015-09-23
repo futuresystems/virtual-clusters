@@ -5,7 +5,10 @@
     url: "{{ hadoop_url }}"
     dest: "{{ ansible_env.PWD }}/{{ hadoop_archive_name }}"
     sha256sum: "{{ hadoop_archive_sha256 }}"
-  tags: hadoop_install
+  tags:
+    - hadoop_install
+    - hadoop
+    - install
 
 
 - name: ensure installation destination
@@ -42,8 +45,8 @@
 - name: fix permissions
   file:
     path: "{{ hadoop_home_dir }}/{{ hadoop_extracted_name }}"
-    owner: "{{ hadoop_user }}"
-    group: "{{ hadoop_group }}"
+    owner: root
+    group: root
     recurse: yes
     state: directory
   tags:
