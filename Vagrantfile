@@ -151,5 +151,5 @@ Vagrant.configure(2) do |config|
 end
 
 
-print `./scripts/mkInventory #{SPEC_FILE} | tee #{INVENTORY_FILE}`
-`./scripts/mkHosts  #{SPEC_FILE} > #{HOSTS_FILE}`
+# print `./scripts/mkInventory #{SPEC_FILE} > #{INVENTORY_FILE}`
+# `./scripts/mkHosts  #{SPEC_FILE} > #{HOSTS_FILE}`
