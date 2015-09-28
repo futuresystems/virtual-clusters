@@ -223,7 +223,7 @@
     - role: supervisord
       supervisord_programs:
         journalnode:
-          command: bash -l -c 'hdfs journalnode'
+          command: sh -lc 'hdfs journalnode'
           user: hadoop
           stdout_logfile: /hdfs/journalnode-stdout.log
           stderr_logfile: /hdfs/journalnode-stderr.log
@@ -280,13 +280,13 @@
       supervisord_programs:
 
         namenode:
-          command: bash -l -c 'hdfs namenode'
+          command: sh -lc 'hdfs namenode'
           user: hadoop
           stdout_logfile: /hdfs/namenode-stdout.log
           stderr_logfile: /hdfs/namenode-stderr.log
 
         zkfc:
-          command: bash -l -c 'hdfs zkfc'
+          command: sh -lc 'hdfs zkfc'
           user: hadoop
           stdout_logfile: /hdfs/zkfc-stdout.log
           stderr_logfile: /hdfs/zkfc-stderr.log
@@ -299,7 +299,7 @@
     - role: supervisord
       supervisord_programs:
         datanode:
-          command: bash -l -c 'hdfs datanode'
+          command: sh -lc 'hdfs datanode'
           user: hadoop
           stdout_logfile: /hdfs/datanode-stdout.log
           stderr_logfile: /hdfs/datanode-stderr.log
@@ -312,7 +312,7 @@
     - role: supervisord
       supervisord_programs:
         historyserver:
-          command: bash -l -c 'mapred historyserver'
+          command: sh -lc 'mapred historyserver'
           user: hadoop
           stdout_logfile: /hdfs/historyserver-stdout.log
           stderr_logfile: /hdfs/historyserver-stderr.log
