@@ -5,6 +5,7 @@
     url: "{{ hadoop_url }}"
     dest: "{{ ansible_env.PWD }}/{{ hadoop_archive_name }}"
     sha256sum: "{{ hadoop_archive_sha256 }}"
+    timeout: "{{ hadoop_download_timeout }}"
   tags:
     - hadoop_install
     - hadoop

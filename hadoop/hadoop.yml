@@ -40,13 +40,13 @@
 
       authorized_keys:
         - user: hadoop
-          key: "{{ hadoop.key_public }}"
+          key: "{{ hadoop_key_public }}"
         - user: hadoop
           key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
 
       private_keys:
         - user: hadoop
-          key: "{{ hadoop.key_private }}"
+          key: "{{ hadoop_key_private }}"
 
       directories:
         /hdfs:
@@ -72,28 +72,28 @@
   sudo: yes
   tasks:
 
-    - name: storage | create partition label
-      command: parted -s /dev/vdb mklabel gpt creates=/dev/vdb1
-      tags: storage
+    # - name: storage | create partition label
+    #   command: parted -s /dev/vdb mklabel gpt creates=/dev/vdb1
+    #   tags: storage
 
-    - name: storage | create partition
-      command: parted -s /dev/vdb mkpart primary ext3 0% 100% creates=/dev/vdb1
-      tags: storage
+    # - name: storage | create partition
+    #   command: parted -s /dev/vdb mkpart primary ext3 0% 100% creates=/dev/vdb1
+    #   tags: storage
 
-    - name: storage | format disks
-      filesystem:
-        dev: /dev/vdb1
-        fstype: ext3
-      tags: storage
+    # - name: storage | format disks
+    #   filesystem:
+    #     dev: /dev/vdb1
+    #     fstype: ext3
+    #   tags: storage
 
-    - name: storage | mount
-      mount:
-        name: /hdfs
-        src: /dev/vdb1
-        fstype: ext3
-        state: "{{ item }}"
-      with_items: [present, mounted]
-      tags: storage
+    # - name: storage | mount
+    #   mount:
+    #     name: /hdfs
+    #     src: /dev/vdb1
+    #     fstype: ext3
+    #     state: "{{ item }}"
+    #   with_items: [present, mounted]
+    #   tags: storage
 
     - name: storage | fix permissions
       file:
@@ -109,7 +109,7 @@
   sudo: yes
   roles:
     - role: zookeeper
-      zookeeper_node_iface: ansible_eth1
+      zookeeper_node_iface: ansible_eth0
       zookeeper_nodes: "{{ groups['zookeeper'] }}"
 
     - role: supervisord
@@ -149,23 +149,30 @@
         dfs.replication: "{{ dfs_replication }}"
         dfs.permissions.enabled: "true"
         dfs.permissions.superusergroup: hadoop,hadoopadmin
+        dfs.namenode.datanode.registration.ip-hostname-check: "false"
 
         # HA
         dfs.nameservices: futuresystems
 
         dfs.ha.namenodes.futuresystems: nn1,nn2
         dfs.namenode.rpc-address.futuresystems.nn1:
-          "{{ hostvars[groups['namenodes'][0]].ansible_fqdn }}:8020"
+          "{{ hostvars[groups['namenodes'][0]][hadoop_iface].ipv4.address }}:8020"
         dfs.namenode.rpc-address.futuresystems.nn2:
-          "{{ hostvars[groups['namenodes'][1]].ansible_fqdn }}:8020"
+          "{{ hostvars[groups['namenodes'][1]][hadoop_iface].ipv4.address }}:8020"
 
         dfs.namenode.http-address.futuresystems.nn1:
-          "{{ hostvars[groups['namenodes'][0]].ansible_fqdn }}:50070"
+          "{{ hostvars[groups['namenodes'][0]][hadoop_iface].ipv4.address }}:50070"
         dfs.namenode.http-address.futuresystems.nn2:
-          "{{ hostvars[groups['namenodes'][1]].ansible_fqdn }}:50070"
+          "{{ hostvars[groups['namenodes'][1]][hadoop_iface].ipv4.address }}:50070"
 
         dfs.namenode.shared.edits.dir:
-          qjournal://master1.local:8485;master2.local:8485;master3.local:8485/futuresystems
+          "\
+          qjournal://\
+          {{ hostvars[groups['journalnodes'][0]][hadoop_iface].ipv4.address }}:8485;\
+          {{ hostvars[groups['journalnodes'][1]][hadoop_iface].ipv4.address }}:8485;\
+          {{ hostvars[groups['journalnodes'][2]][hadoop_iface].ipv4.address }}:8485\
+          /futuresystems\
+          "
 
         dfs.client.failover.proxy.provider.futuresystems:
           "org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider"
@@ -175,6 +182,9 @@
           "{{ ansible_env.HOME }}/.ssh/id_rsa"
 
         dfs.ha.automatic-failover.enabled: "true"
+
+        # using `hostvars[groups['zookeeper']] does not work
+        # as the `zkN` nodes are not visible using that approach
         ha.zookeeper.quorum: "{{ zookeeper_hosts }}"
 
         # journalnodes
@@ -185,9 +195,9 @@
         dfs.datanode.data.dir: file:///hdfs/datanode
 
 
-      mapred_site:
-        mapred.job.tracker: master1.local:9001
-        mapreduce.jobtracker.restart.recover: 'true'
+      # mapred_site:
+      #   mapred.job.tracker: master1.local:9001
+      #   mapreduce.jobtracker.restart.recover: 'true'
 
 
 - name: stop everything
@@ -306,45 +316,3 @@
           user: hadoop
           stdout_logfile: /hdfs/historyserver-stdout.log
           stderr_logfile: /hdfs/historyserver-stderr.log
-
-
-- name: frontend
-  hosts: frontend
-  sudo: yes
-  roles:
-    - role: common
-      users_managed:
-        user1:
-          groups: hadoopuser
-        user2:
-          groups: hadoopuser
-
-
-- name: multi user setup
-  hosts: datanodes[0]
-  user: hadoop
-  tasks:
-    - name: fix permissions in hdfs:///tmp
-      shell: bash -l -c "hadoop fs -chmod -R 1777 /tmp"
-      tags: hadoop_users
-
-    - name: create users
-      shell: bash -lc "hadoop fs -mkdir -p /user/{{ item }}"
-      with_items:
-        - user1
-        - user2
-      tags: hadoop_users
-
-    - name: fix access mode on user directories
-      shell: bash -lc "hadoop fs -chmod 700 /user/{{ item }}"
-      with_items:
-        - user1
-        - user2
-      tags: hadoop_users
-
-    - name: fix ownership on user directories
-      shell: bash -lc "hadoop fs -chown -R {{ item }}:{{ item }} /user/{{ item }}"
-      with_items:
-        - user1
-        - user2
-      tags: hadoop_users

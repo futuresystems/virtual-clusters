@@ -13,6 +13,15 @@ defaults:
   domain_name: local
   extra_disks: []
   zk_port: 2181
+  openstack_flavor: m1.large
+  openstack_image: Ubuntu-14.04-64
+  openstack_key_name: gambit
+  openstack_public_key: ~/.ssh/id_rsa.pub
+  openstack_network: systest-net
+  openstack_floating_ip_pool: ext-net
+  openstack_security_groups:
+    - default
+    - hadoop
 
 machines:
 
@@ -127,7 +136,13 @@ hostvars:
 
 
 groupvars:
+  all:
+    hadoop_iface: ansible_eth0
   hadoop_nodes:
     dfs_replication: 3
     zookeeper_hosts:
-      zk1.local:2181,zk2.local:2181,zk3.local:2181
+      "\
+      {{ hostvars['zk1'][hadoop_iface].ipv4.address }}:2181,\
+      {{ hostvars['zk2'][hadoop_iface].ipv4.address }}:2181,\
+      {{ hostvars['zk3'][hadoop_iface].ipv4.address }}:2181\
+      "

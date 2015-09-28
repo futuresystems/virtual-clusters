@@ -2,3 +2,5 @@ jinja2
 ansible
 ansible-lint
 PyYAML
+python-openstackclient
+python-novaclient
