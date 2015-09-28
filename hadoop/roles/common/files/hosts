@@ -1,15 +1,15 @@
 127.0.0.1 localhost
 ::1 localhost
-10.0.0.10 zk1 zk1.local
-10.0.0.11 zk2 zk2.local
-10.0.0.12 zk3 zk3.local
-10.0.1.10 master1 master1.local
-10.0.1.11 master2 master2.local
-10.0.1.12 master3 master3.local
-10.0.2.10 slave1 slave1.local
-10.0.2.11 slave2 slave2.local
-10.0.2.12 slave3 slave3.local
-10.0.2.13 slave4 slave4.local
-10.0.2.14 slave5 slave5.local
-10.0.2.15 slave6 slave6.local
-10.0.3.10 frontend frontend.local
+10.0.1.50 zk1 zk1.local
+10.0.1.51 zk2 zk2.local
+10.0.1.52 zk3 zk3.local
+10.0.1.53 master1 master1.local
+10.0.1.54 master2 master2.local
+10.0.1.55 master3 master3.local
+10.0.1.56 slave1 slave1.local
+10.0.1.57 slave2 slave2.local
+10.0.1.58 slave3 slave3.local
+10.0.1.59 slave4 slave4.local
+10.0.1.60 slave5 slave5.local
+10.0.1.61 slave6 slave6.local
+10.0.1.62 frontend frontend.local

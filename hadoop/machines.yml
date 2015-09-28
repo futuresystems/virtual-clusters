@@ -21,7 +21,6 @@ defaults:
   openstack_floating_ip_pool: ext-net
   openstack_security_groups:
     - default
-    - hadoop
 
 machines:
 
@@ -36,9 +35,15 @@ machines:
 
   - name: master1
     ip: 10.0.1.10
+    openstack_security_groups:
+      - default
+      - hadoop-status
 
   - name: master2
     ip: 10.0.1.11
+    openstack_security_groups:
+      - default
+      - hadoop-status
 
   - name: master3
     ip: 10.0.1.12
