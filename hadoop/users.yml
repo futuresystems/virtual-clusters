@@ -1,0 +1,104 @@
+---
+
+- name: frontend
+  hosts: frontend
+  sudo: yes
+  vars:
+    users:  "{{ lookup('pipe', 'cat users.txt' ).split('\n') }}"
+    admins: "{{ lookup('pipe', 'cat admins.txt').split('\n') }}"
+    admin_keys:
+      "\
+      {{ lookup('pipe', 'for u in `cat admins.txt`; do for f in public_keys/$u/*; do cat $f;echo;done;done') }}\
+      "
+
+  tasks:
+
+    - name: frontend | create user accounts
+      user:
+        name: "{{ item }}"
+        createhome: yes
+        groups: hadoopuser
+        append: yes
+        shell: /bin/bash
+        state: present
+      with_items: users
+      tags:
+        - frontend_users
+        - frontend
+        - users
+
+    - name: frontend | unlock authorized_keys
+      shell:  chattr -i ~{{ item }}/.ssh/authorized_keys || exit 0
+      with_items: users
+      tags:
+        - frontend_users
+        - frontend
+        - users
+
+    - name: frontend | add user ssh keys
+      authorized_key:
+        user: "{{ item }}"
+        key: "{{ lookup('pipe', 'for f in public_keys/'+item+'/*; do cat $f;echo;done') }}"
+      with_items: users
+      tags:
+        - frontend_users
+        - frontend
+        - users
+
+    - name: frontend | add admin ssh keys
+      authorized_key:
+        user: "{{ item }}"
+        key: "{{ admin_keys }}"
+      with_items: users
+      tags:
+        - frontend_users
+        - frontend
+        - users
+
+    - name: frontend | lock permissions on authorized_keys
+      file:
+        path: "/home/{{ item }}/.ssh/authorized_keys"
+        owner: root
+        group: root
+        mode: 0444
+        state: file
+      with_items: users
+      tags:
+        - frontend_users
+        - frontend
+        - users
+
+    - name: frontend | make authorized_keys immutable
+      command: chattr +i ~{{ item }}/.ssh/authorized_keys
+      with_items: users
+      tags:
+        - frontend_users
+        - frontend
+        - users
+
+
+- name: multi user hadoop setup
+  hosts: datanodes[0]
+  user: hadoop
+  vars:
+    users:  "{{ lookup('pipe', 'cat users.txt' ).split('\n') }}"
+
+  tasks:
+    - name: fix permissions in hdfs:///tmp
+      shell: bash -l -c "hadoop fs -chmod -R 1777 /tmp"
+      tags: hadoop_users
+
+    - name: create users
+      shell: bash -lc "hadoop fs -mkdir -p /user/{{ item }}"
+      with_items: users
+      tags: hadoop_users
+
+    - name: fix access mode on user directories
+      shell: bash -lc "hadoop fs -chmod 700 /user/{{ item }}"
+      with_items: users
+      tags: hadoop_users
+
+    - name: fix ownership on user directories
+      shell: bash -lc "hadoop fs -chown -R {{ item }}:{{ item }} /user/{{ item }}"
+      with_items: users
+      tags: hadoop_users
