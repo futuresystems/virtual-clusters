@@ -258,7 +258,7 @@ inventory:
   # These entries are processed to form the ansible inventory file.
   # lists are used to preserve order in the generated inventory file
 
-  - zookeeper: &zookeener
+  - zookeeper: &zookeeper
       - zk1
       - zk2
       - zk3
