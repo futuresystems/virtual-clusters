@@ -25,67 +25,231 @@ defaults:
 machines:
 
   - name: zk1
-    ip: 10.0.0.10
-
-  - name: zk2
     ip: 10.0.0.11
 
-  - name: zk3
+  - name: zk2
     ip: 10.0.0.12
 
-  - name: master1
-    ip: 10.0.1.10
-    openstack_security_groups:
-      - default
-      - hadoop-status
+  - name: zk3
+    ip: 10.0.0.13
 
-  - name: master2
+  - name: master1
     ip: 10.0.1.11
     openstack_security_groups:
       - default
       - hadoop-status
 
-  - name: master3
+  - name: master2
     ip: 10.0.1.12
+    openstack_security_groups:
+      - default
+      - hadoop-status
+
+  - name: master3
+    ip: 10.0.1.13
 
   - name: slave1
-    ip: 10.0.2.10
-    extra_disks:
-      - device: vdb
-        size: 10G
-
-  - name: slave2
     ip: 10.0.2.11
     extra_disks:
       - device: vdb
         size: 10G
 
-  - name: slave3
+  - name: slave2
     ip: 10.0.2.12
     extra_disks:
       - device: vdb
         size: 10G
 
-  - name: slave4
+  - name: slave3
     ip: 10.0.2.13
     extra_disks:
       - device: vdb
         size: 10G
 
-  - name: slave5
+  - name: slave4
     ip: 10.0.2.14
     extra_disks:
       - device: vdb
         size: 10G
 
-  - name: slave6
+  - name: slave5
     ip: 10.0.2.15
     extra_disks:
       - device: vdb
         size: 10G
 
-  - name: frontend
-    ip: 10.0.3.10
+  - name: slave6
+    ip: 10.0.2.16
+    extra_disks:
+      - device: vdb
+        size: 10G
+
+  # - name: slave7
+  #   ip: 10.0.2.17
+  #   extra_disks:
+  #     - device: vdb
+  #       size: 10G
+
+  # - name: slave8
+  #   ip: 10.0.2.18
+  #   extra_disks:
+  #     - device: vdb
+  #       size: 10G
+
+  # - name: slave9
+  #   ip: 10.0.2.19
+  #   extra_disks:
+  #     - device: vdb
+  #       size: 10G
+
+  # - name: slave10
+  #   ip: 10.0.2.10
+  #   extra_disks:
+  #     - device: vdb
+  #       size: 10G
+
+  # - name: slave11
+  #   ip: 10.0.2.21
+  #   extra_disks:
+  #     - device: vdb
+  #       size: 10G
+
+  # - name: slave12
+  #   ip: 10.0.2.22
+  #   extra_disks:
+  #     - device: vdb
+  #       size: 10G
+
+  # - name: slave13
+  #   ip: 10.0.2.23
+  #   extra_disks:
+  #     - device: vdb
+  #       size: 10G
+
+  # - name: slave14
+  #   ip: 10.0.2.24
+  #   extra_disks:
+  #     - device: vdb
+  #       size: 10G
+
+  # - name: slave15
+  #   ip: 10.0.2.25
+  #   extra_disks:
+  #     - device: vdb
+  #       size: 10G
+
+  # - name: slave16
+  #   ip: 10.0.2.26
+  #   extra_disks:
+  #     - device: vdb
+  #       size: 10G
+
+  # - name: slave17
+  #   ip: 10.0.2.27
+  #   extra_disks:
+  #     - device: vdb
+  #       size: 10G
+
+  # - name: slave18
+  #   ip: 10.0.2.28
+  #   extra_disks:
+  #     - device: vdb
+  #       size: 10G
+
+  # - name: slave19
+  #   ip: 10.0.2.29
+  #   extra_disks:
+  #     - device: vdb
+  #       size: 10G
+
+  # - name: slave20
+  #   ip: 10.0.2.30
+  #   extra_disks:
+  #     - device: vdb
+  #       size: 10G
+
+  # - name: slave21
+  #   ip: 10.0.2.31
+  #   extra_disks:
+  #     - device: vdb
+  #       size: 10G
+
+  # - name: slave22
+  #   ip: 10.0.2.32
+  #   extra_disks:
+  #     - device: vdb
+  #       size: 10G
+
+  # - name: slave23
+  #   ip: 10.0.2.33
+  #   extra_disks:
+  #     - device: vdb
+  #       size: 10G
+
+  # - name: slave24
+  #   ip: 10.0.2.34
+  #   extra_disks:
+  #     - device: vdb
+  #       size: 10G
+
+  # - name: slave25
+  #   ip: 10.0.2.35
+  #   extra_disks:
+  #     - device: vdb
+  #       size: 10G
+
+  # - name: slave26
+  #   ip: 10.0.2.36
+  #   extra_disks:
+  #     - device: vdb
+  #       size: 10G
+
+  # - name: slave27
+  #   ip: 10.0.2.37
+  #   extra_disks:
+  #     - device: vdb
+  #       size: 10G
+
+  # - name: slave28
+  #   ip: 10.0.2.38
+  #   extra_disks:
+  #     - device: vdb
+  #       size: 10G
+
+  # - name: slave29
+  #   ip: 10.0.2.39
+  #   extra_disks:
+  #     - device: vdb
+  #       size: 10G
+
+  # - name: slave30
+  #   ip: 10.0.2.40
+  #   extra_disks:
+  #     - device: vdb
+  #       size: 10G
+
+
+  - name: frontend1
+    ip: 10.0.3.11
+    openstack_flavor: m1.xlarge
+
+  - name: frontend2
+    ip: 10.0.3.12
+    openstack_flavor: m1.xlarge
+
+  - name: frontend3
+    ip: 10.0.3.13
+    openstack_flavor: m1.xlarge
+
+  - name: loadbalancer1
+    ip: 10.0.4.11
+    openstack_flavor: m1.medium
+    openstack_security_groups:
+    - default
+    - sshlb
+
+  - name: monitor1
+    ip: 10.0.5.11
 
 
 
@@ -118,18 +282,50 @@ inventory:
       - slave4
       - slave5
       - slave6
+      - slave7
+      - slave8
+      - slave9
+      - slave10
+      - slave11
+      - slave12
+      - slave13
+      - slave14
+      - slave15
+      - slave16
+      - slave17
+      - slave18
+      - slave19
+      - slave20
+      - slave21
+      - slave22
+      - slave23
+      - slave24
+      - slave25
+      - slave26
+      - slave27
+      - slave28
+      - slave29
+
+
+  - frontends: &frontends
+      - frontend1
+      - frontend2
+      - frontend3
 
   - hadoop_nodes:
       ^CONCAT^:
-        - [frontend]
+        - *frontends
         - *namenodes
         - *datanodes
         - *journalnodes
         - *historyserver
 
-  - frontend:
-      - frontend
 
+  - loadbalancer:
+      - loadbalancer1
+
+  - monitor:
+      - monitor1
 
 hostvars:
   zk1:
