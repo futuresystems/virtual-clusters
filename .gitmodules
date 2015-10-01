@@ -1,3 +1,12 @@
 [submodule "hadoop/roles/limits"]
 	path = hadoop/roles/limits
 	url = https://github.com/Oefenweb/ansible-limits.git
+[submodule "hadoop/roles/nagios-config"]
+	path = hadoop/roles/nagios-config
+	url = git@github.com:futuresystems/ansible-role-nagios-config
+[submodule "hadoop/roles/nagios-client"]
+	path = hadoop/roles/nagios-client
+	url = git@github.com:futuresystems/ansible-role-nagios-client
+[submodule "hadoop/roles/nagios-server"]
+	path = hadoop/roles/nagios-server
+	url = git@github.com:futuresystems/ansible-role-nagios-server

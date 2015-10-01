@@ -250,6 +250,9 @@ machines:
 
   - name: monitor1
     ip: 10.0.5.11
+    openstack_security_groups:
+      - default
+      - webserver
 
 
 
