@@ -1,7 +1,7 @@
 ---
 
 - name: frontend
-  hosts: frontend
+  hosts: frontends
   sudo: yes
   vars:
     users:  "{{ lookup('pipe', 'cat users.txt' ).split('\n') }}"
@@ -102,3 +102,19 @@
       shell: bash -lc "hadoop fs -chown -R {{ item }}:{{ item }} /user/{{ item }}"
       with_items: users
       tags: hadoop_users
+
+
+- name: ssh load balancer
+  hosts: loadbalancer
+  sudo: yes
+  roles:
+    - role: common
+      package_list:
+        - balance
+
+    - role: supervisord
+      supervisord_programs:
+        balance_ssh:
+          command: "balance -f -b 0.0.0.0 2222 {{ groups['frontends'] | join(':22 ') ~':22' }}"
+          stdout_logfile: /var/log/balance_ssh-out.log
+          stderr_logfile: /var/log/balance_ssh-err.log
