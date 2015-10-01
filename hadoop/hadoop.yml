@@ -15,6 +15,7 @@
         - rsync
         - parted
         - iotop
+        - facter
 
       services_running:
         - ssh
