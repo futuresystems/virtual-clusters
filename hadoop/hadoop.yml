@@ -126,6 +126,20 @@
 - name: hadoop common
   hosts: hadoop_nodes
   sudo: yes
+  post_tasks:
+
+    # somehow the permissions get messed up (a subset of the
+    # directories become only executable by owner, preventing any
+    # other users from calling the hadoop binaries
+
+    - name: fix permissions
+      shell: find /opt/hadoop-* -type d -exec chmod a+r,a+x {} +
+      tags:
+        - hadoop_common
+        - hadoop
+        - fix_permissions
+        - fix
+
   roles:
     - role: java
     - role: supervisord
