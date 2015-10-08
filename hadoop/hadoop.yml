@@ -1,32 +1,5 @@
 ---
 
-- name: common
-  hosts: all
-  sudo: yes
-  roles:
-
-    - role: common
-
-      package_list:
-        - emacs24-nox
-        - curl
-        - httpie
-        - ssh
-        - rsync
-        - parted
-        - iotop
-        - facter
-
-      services_running:
-        - ssh
-
-      groups_managed:
-        hadoopadmin:
-          gid: 1001
-        hadoopuser:
-          gid: 1002
-
-
 - name: common:!frontend
   hosts: hadoop_nodes
   sudo: yes
