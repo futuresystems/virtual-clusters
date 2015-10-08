@@ -1,5 +1,19 @@
 ---
 
+- name: ganglia monitor
+  hosts: monitor
+  sudo: yes
+  roles:
+    - role: ganglia_metad
+    - role: ganglia_web
+
+- name: ganglia nodes
+  hosts: all
+  sudo: yes
+  roles:
+    - role: ganglia_mond
+
+
 - name: nagios server
   hosts: monitor
   sudo: yes

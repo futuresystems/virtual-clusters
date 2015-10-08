@@ -1,0 +1,22 @@
+---
+
+- name: install packages
+  apt:
+    name: ganglia-monitor
+    state: present
+  tags:
+    - ganglia_mond_install
+    - ganglia_mond
+    - install
+    - ganglia
+
+
+- name: configure
+  template:
+    src: gmond.conf.j2
+    dest: /etc/ganglia/gmond.conf
+  tags:
+    - ganglia_mond_configure
+    - ganglia_mond
+    - configure
+    - ganglia

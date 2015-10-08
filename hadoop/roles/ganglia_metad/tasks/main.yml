@@ -1,0 +1,24 @@
+---
+
+- name: install packages
+  apt:
+    name: gmetad
+    state: present
+  tags:
+    - ganglia_metad_install
+    - ganglia_metad
+    - metad
+    - install
+    - ganglia
+
+- name: configure
+  template:
+    src: gmetad.conf.j2
+    dest: /etc/ganglia/gmetad.conf
+  notify: restart gmetad
+  tags:
+    - ganglia_metad_configure
+    - ganglia_metad
+    - metad
+    - configure
+    - ganglia

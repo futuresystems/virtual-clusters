@@ -1,0 +1,19 @@
+---
+
+ganglia_defaults_gmon_port: 8649
+
+ganglia_defaults_cluster_name: unspecified
+ganglia_defaults_cluster_owner: unspecified
+ganglia_defaults_cluster_latlong: unspecified
+ganglia_defaults_cluster_url: unspecified
+
+ganglia_cluster: {}
+
+ganglia_udp_send_channels:
+  - port: "{{ ganglia_defaults_gmon_port }}"
+
+ganglia_udp_recv_channels:
+  - port: "{{ ganglia_defaults_gmon_port }}"
+
+ganglia_tcp_accept_channels:
+  - port: "{{ ganglia_defaults_gmon_port }}"

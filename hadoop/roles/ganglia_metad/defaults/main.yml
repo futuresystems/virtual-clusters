@@ -1,0 +1,14 @@
+---
+
+ganglia_poll_interval: 15
+
+ganglia_grid_name: MyGrid
+
+ganglia_server_threads: 10
+
+ganglia_defaults_gmond_port: 8649
+
+ganglia_data_sources:
+  MyGrid:
+    hosts:
+      - "localhost:{{ ganglia_defaults_gmond_port }}"
