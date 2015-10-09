@@ -1,7 +1,7 @@
 ---
 
 - name: ganglia monitor
-  hosts: monitor
+  hosts: monitor[0]
   sudo: yes
   roles:
     - role: ganglia_metad
@@ -12,6 +12,9 @@
   sudo: yes
   roles:
     - role: ganglia_mond
+      ganglia_udp_send_channels:
+        - host: "{{ hostvars[groups['monitor'][0]].ansible_eth0.ipv4.address }}"
+          port: "{{ ganglia_defaults_gmon_port }}"
 
 
 - name: nagios server
