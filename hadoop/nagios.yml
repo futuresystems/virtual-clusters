@@ -1,0 +1,74 @@
+---
+
+- name: nagios server
+  hosts: monitor
+  sudo: yes
+  roles:
+    - role: nagios-server
+      nagios_server_address: 0.0.0.0
+
+    - role: nagios-config
+      nagios_config_hosts:
+        - name: all
+          nodes: "{{ groups['all'] }}"
+          check_interval: 1
+          check_period: 24x7
+          check_freshness: 1
+          check_command: >-
+            check_ping!100.0,20%!500.0,60%
+
+      nagios_config_hostgroups:
+
+        - name: all
+          members: "{{ groups['all'] }}"
+
+        - name: zookeeper
+          members: "{{ groups['zookeeper'] }}"
+
+        - name: namenodes
+          members: "{{ groups['namenodes'] }}"
+
+        - name: journalnodes
+          members: "{{ groups['journalnodes'] }}"
+
+        - name: historyserver
+          members: "{{ groups['historyserver'] }}"
+
+        - name: datanodes
+          members: "{{ groups['datanodes'] }}"
+
+        - name: frontends
+          members: "{{ groups['frontends'] }}"
+
+        - name: hadoop_nodes
+          members: "{{ groups['hadoop_nodes'] }}"
+
+        - name: loadbalancer
+          members: "{{ groups['loadbalancer'] }}"
+
+        - name: monitor
+          members: "{{ groups['monitor'] }}"
+
+      nagios_config_services:
+
+        - name: ping
+          hostgroup_name: all
+          service_description: Can be pinged
+          check_command: >-
+            check_ping!100.0,20%!500.0,60%
+
+        - name: check_load_ok
+          hostgroup_name: all
+          service_description: Load OK
+          check_command: >-
+            check_nrpe!check_load
+
+
+- name: nagios client
+  hosts: all:!monitor
+  sudo: yes
+  roles:
+    - role: nagios-client
+      nagios_client_nagios_server_address: "{{ groups['monitor'][0] }}"
+
+      nagios_client_commands: []
