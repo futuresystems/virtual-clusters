@@ -9,7 +9,6 @@
 
       users_managed:
         hadoop:
-          gid: 1001
           groups: hadoopadmin
           append: yes
 

@@ -22,6 +22,4 @@
 
       groups_managed:
         hadoopadmin:
-          gid: 1001
         hadoopuser:
-          gid: 1002
