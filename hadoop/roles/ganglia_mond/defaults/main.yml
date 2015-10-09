@@ -1,5 +1,7 @@
 ---
 
+ganglia_gmon_conf_path: /etc/ganglia/gmond.conf
+
 ganglia_defaults_gmon_port: 8649
 
 ganglia_defaults_cluster_name: unspecified

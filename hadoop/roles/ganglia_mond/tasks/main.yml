@@ -14,7 +14,7 @@
 - name: configure
   template:
     src: gmond.conf.j2
-    dest: /etc/ganglia/gmond.conf
+    dest: "{{ ganglia_gmon_conf_path }}"
   tags:
     - ganglia_mond_configure
     - ganglia_mond
