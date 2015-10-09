@@ -15,10 +15,20 @@
   template:
     src: gmetad.conf.j2
     dest: /etc/ganglia/gmetad.conf
-  notify: restart gmetad
   tags:
     - ganglia_metad_configure
     - ganglia_metad
     - metad
     - configure
     - ganglia
+
+- name: restart gmetad
+  service:
+    name: gmetad
+    state: restarted
+  tags:
+    - ganglia_metad_service
+    - ganglia_metad
+    - ganglia_service
+    - ganglia
+    - service

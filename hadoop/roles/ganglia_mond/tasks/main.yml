@@ -20,3 +20,14 @@
     - ganglia_mond
     - configure
     - ganglia
+
+- name: restart gmond
+  service:
+    name: ganglia-monitor
+    state: restarted
+  tags:
+    - ganglia_mond_service
+    - ganglia_mond
+    - ganglia_service
+    - ganglia
+    - service

@@ -34,4 +34,15 @@
     - ganglia_web
     - configure
     - ganglia
-  notify: reload apache
+
+
+- name: reload apache
+  service:
+    name: apache2
+    state: reloaded
+  tags:
+    - ganglia_web_service
+    - ganglia_web
+    - ganglia_service
+    - ganglia
+    - service
