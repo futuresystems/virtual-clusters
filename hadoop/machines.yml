@@ -278,6 +278,11 @@ inventory:
   - historyserver: &historyserver
       - master3
 
+  - resourcemanagers: &resourcemanagers
+      - master1
+      - master2
+      - master3
+
   - datanodes: &datanodes
       - slave1
       - slave2

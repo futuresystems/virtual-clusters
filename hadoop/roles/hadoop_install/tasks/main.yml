@@ -55,6 +55,16 @@
     - hadoop
     - install
 
+- name: create yarn log dir
+  file:
+    path: "{{ hadoop_yarn_log_dir }}"
+    state: directory
+    owner: "{{ hadoop_user }}"
+    group: "{{ hadoop_user }}"
+  tags:
+    - hadoop_install
+    - hadoop
+    - install
 
 - name: set environment exports
   lineinfile:
@@ -67,6 +77,8 @@
     - HADOOP_INSTALL=$HADOOP_HOME
     - PATH=$PATH:$HADOOP_HOME/bin:$HADOOP_HOME/sbin
     - HADOOP_PID_DIR=$HADOOP_HOME/pid
+    - YARN_LOG_DIR={{ hadoop_yarn_log_dir }}
+    - HADOOP_LOGLEVEL={{ hadoop_loglevel }}
   tags:
     - hadoop_install
     - hadoop

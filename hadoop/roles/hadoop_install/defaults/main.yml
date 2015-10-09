@@ -13,3 +13,7 @@ hadoop_home_name: hadoop
 
 hadoop_home_dir: /opt
 hadoop_home: "{{ hadoop_home_dir }}/{{ hadoop_home_name }}"
+
+hadoop_yarn_log_dir: /var/log/yarn
+hadoop_user: hadoop
+hadoop_loglevel: INFO

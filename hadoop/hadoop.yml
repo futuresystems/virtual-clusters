@@ -131,6 +131,29 @@
         fs.defaultFS:
           hdfs://futuresystems
 
+      mapred_site:
+        mapreduce.framework.name: yarn
+        mapreduce.jobhistory.address:
+          "{{ groups['historyserver'][0] }}:10020 "
+
+      yarn_site:
+        yarn.acl.enable: "true"
+
+        yarn.resourcemanager.ha.enabled: "true"
+        yarn.resourcemanager.cluster-id: "cluster1"
+        yarn.resourcemanager.ha.rm-ids: "rm1,rm2,rm3"
+        yarn.resourcemanager.hostname.rm1:
+          "{{ hostvars[groups['resourcemanagers'][0]].ansible_hostname }}"
+        yarn.resourcemanager.hostname.rm2:
+          "{{ hostvars[groups['resourcemanagers'][1]].ansible_hostname }}"
+        yarn.resourcemanager.hostname.rm3:
+          "{{ hostvars[groups['resourcemanagers'][2]].ansible_hostname }}"
+        yarn.resourcemanager.zk-address:
+          "{{ groups['zookeeper'] | join(':2181,') ~ ':2181' }}"
+
+        yarn.nodemanager.aux-services: mapreduce_shuffle
+        yarn.nodemanager.aux-services.mapreduce_shuffle.class:
+          org.apache.hadoop.mapred.ShuffleHandler
 
       hdfs_site:
         dfs.namenode.name.dir: file:///hdfs/namenode
@@ -280,6 +303,18 @@
           stderr_logfile: /hdfs/zkfc-stderr.log
 
 
+- name: resourcemanagers
+  hosts: resourcemanagers
+  sudo: yes
+  roles:
+    - role: supervisord
+      supervisord_programs:
+        resourcemanager:
+          command: sh -lc 'yarn resourcemanager'
+          user: hadoop
+          stdout_logfile: /hdfs/resourcemanager-stdout.log
+          stderr_logfile: /hdfs/resourcemanager-stderr.log
+
 - name: data nodes
   hosts: datanodes
   sudo: yes
@@ -291,6 +326,11 @@
           user: hadoop
           stdout_logfile: /hdfs/datanode-stdout.log
           stderr_logfile: /hdfs/datanode-stderr.log
+        nodemanager:
+          command: sh -lc 'yarn nodemanager'
+          user: hadoop
+          stdout_logfile: /hdfs/nodemanager-stdout.log
+          stderr_logfile: /hdfs/nodemanager-stderr.log
 
 
 - name: history server
