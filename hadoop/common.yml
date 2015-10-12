@@ -23,3 +23,14 @@
       groups_managed:
         hadoopadmin:
         hadoopuser:
+
+
+- name: frontend packages
+  hosts: frontends
+  sudo: yes
+  roles:
+    - role: common
+      package_list:
+        - git
+        - unzip
+        - maven
