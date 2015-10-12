@@ -77,6 +77,21 @@
         - users
 
 
+    - name: give sudo rights to admins
+      lineinfile:
+        dest: "/etc/sudoers.d/{{ item }}"
+        line: "{{ item }} ALL=(ALL) NOPASSWD:ALL"
+        create: yes
+      with_items: admins
+      tags:
+        - frontend_admin_users
+        - frontend
+        - admin_users
+        - admin
+        - users
+
+
+
 - name: multi user hadoop setup
   hosts: datanodes[0]
   user: hadoop
