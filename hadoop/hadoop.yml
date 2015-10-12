@@ -138,6 +138,7 @@
 
       yarn_site:
         yarn.acl.enable: "true"
+        yarn.log-aggregation-enable: "true"
 
         yarn.resourcemanager.ha.enabled: "true"
         yarn.resourcemanager.cluster-id: "cluster1"
