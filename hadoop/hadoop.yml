@@ -134,7 +134,7 @@
       mapred_site:
         mapreduce.framework.name: yarn
         mapreduce.jobhistory.address:
-          "{{ groups['historyserver'][0] }}:10020 "
+          "{{ groups['historyserver'][0] }}:10020"
 
       yarn_site:
         yarn.acl.enable: "true"
