@@ -74,6 +74,7 @@
   with_items:
     - JAVA_HOME=$(dirname $(dirname $(dirname $(update-alternatives --list java))))
     - HADOOP_HOME={{ hadoop_home }}
+    - HADOOP_CONF_DIR=$HADOOP_HOME/etc/hadoop
     - HADOOP_INSTALL=$HADOOP_HOME
     - PATH=$PATH:$HADOOP_HOME/bin:$HADOOP_HOME/sbin
     - HADOOP_PID_DIR=$HADOOP_HOME/pid
