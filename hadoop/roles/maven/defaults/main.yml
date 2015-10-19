@@ -1,0 +1,21 @@
+---
+
+maven_url: http://www.us.apache.org/dist/maven/maven-3/3.3.3/binaries/apache-maven-3.3.3-bin.tar.gz
+maven_sha256: 3a8dc4a12ab9f3607a1a2097bbab0150c947ad6719d8f1bb6d5b47d0fb0c4779
+maven_install_dest: /opt
+maven_create_link: yes
+maven_link_name: maven
+
+maven_prefix:
+  "\
+  {{ maven_install_dest }}/\
+  {{ maven_link_name if maven_create_link else _maven_directory }}\
+  "
+
+maven_update_profile_d: yes
+maven_profile_d_name: maven.sh
+maven_profile_d_lines:
+  - "PATH={{ maven_prefix }}/bin:$PATH"
+
+_maven_package_name: "{{ maven_url | basename }}"
+_maven_directory: "{{ _maven_package_name.rstrip('.tar.gz').rstrip('.zip').rstrip('-bin') }}"

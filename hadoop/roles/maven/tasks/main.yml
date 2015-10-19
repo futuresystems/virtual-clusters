@@ -1,0 +1,43 @@
+---
+
+- name: download
+  get_url:
+    url: "{{ maven_url }}"
+    dest: "{{ ansible_env.PWD }}/{{ _maven_package_name }}"
+    sha256sum: "{{ maven_sha256 }}"
+  tags:
+    - maven_install
+    - maven
+    - install
+
+- name: extract
+  command: tar xf "{{ _maven_package_name }}" -C "{{ maven_install_dest }}"
+  args:
+    creates: "{{ maven_install_dest }}/{{ _maven_directory }}"
+  tags:
+    - maven_install
+    - maven
+    - install
+
+- name: symlink
+  when: maven_create_link
+  file:
+    path: "{{ maven_install_dest }}/{{ maven_link_name }}"
+    src: "{{ maven_install_dest }}/{{ _maven_directory }}"
+    state: link
+  tags:
+    - maven_install
+    - maven
+    - install
+
+- name: update profile.d
+  when: maven_update_profile_d
+  lineinfile:
+    dest: "/etc/profile.d/{{ maven_profile_d_name }}"
+    create: yes
+    line: "{{ item }}"
+  with_items: "{{ maven_profile_d_lines }}"
+  tags:
+    - maven_configure
+    - maven
+    - configure
