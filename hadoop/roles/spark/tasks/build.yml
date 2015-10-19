@@ -1,6 +1,6 @@
 ---
 
 - name: build
-  command: ./build/mvn {{ _spark_build_mvn_opts }}
+  command: bash -lc "./build/mvn {{ _spark_build_mvn_opts }}"
   args:
     chdir: "{{ _spark_home }}"
