@@ -1,0 +1,45 @@
+---
+
+- name: download
+  get_url:
+    url: "{{ spark_url }}"
+    dest: "{{ ansible_env.PWD }}/{{ _spark_package_name }}"
+    sha256sum: "{{ spark_sha256 }}"
+  tags:
+    - spark_install
+    - spark
+    - install
+
+- name: extract
+  command: tar xf "{{ _spark_package_name }}" -C "{{ spark_install_dest }}"
+  args:
+    creates: "{{ spark_install_dest }}/{{ _spark_directory }}"
+  tags:
+    - spark_install
+    - spark
+    - install
+
+- include: build.yml
+  when: spark_package_type == 'src'
+
+- name: symlink
+  when: spark_create_link
+  file:
+    path: "{{ spark_install_dest }}/{{ spark_link_name }}"
+    src: "{{ spark_install_dest }}/{{ _spark_directory }}"
+    state: link
+  tags:
+    - spark_install
+    - spark
+    - install
+
+- name: configure spark-env.sh
+  lineinfile:
+    dest: "{{ _spark_path_conf }}/spark-env.sh"
+    line: "{{ item }}"
+    create: yes
+  with_items: "{{ spark_config_spark_env_sh + spark_config_spark_env_sh_extra }}"
+  tags:
+    - spark_configure
+    - spark
+    - configure

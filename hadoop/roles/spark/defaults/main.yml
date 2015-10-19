@@ -1,0 +1,55 @@
+---
+
+spark_version: 1.5.1
+spark_package_type: src
+spark_hadoop_profile: hadoop-2.2
+spark_url: "{{ _spark_url[spark_package_type][spark_version] }}"
+spark_sha256: "{{ _spark_sha256[spark_package_type][spark_version] }}"
+spark_install_dest: /opt
+spark_create_link: yes
+spark_link_name: spark
+
+spark_config_local_ip: "{{ ansible_eth0.ipv4.address }}"
+spark_config_spark_env_sh:
+  - export SPARK_HOME={{ _spark_home }}
+  - export HADOOP_CONF_DIR=$HADOOP_HOME/etc/hadoop
+  - export SPARK_LOCAL_IP={{ spark_config_local_ip }}
+
+spark_config_spark_env_sh_extra: []
+
+spark_build_with_yarn: yes
+spark_build_hadoop_version: 2.2.0
+spark_build_hadoop_profile: hadoop-2.2
+spark_build_skip_tests: no
+spark_build_clean: yes
+
+_spark_build_mvn_opts_list:
+  - "{{ '-Pyarn' if spark_build_with_yarn else '' }}"
+  - "{{ '-P' + spark_build_hadoop_profile }}"
+  - "{{ '-Dhadoop.version=' + spark_build_hadoop_version }}"
+  - "{{ '-DskipTests' if spark_build_skip_tests else '' }}"
+  - "{{ 'clean' if spark_build_clean else '' }}"
+  - "package"
+
+_spark_build_mvn_opts: "{{ _spark_build_mvn_opts_list | join(' ') }}"
+
+
+_spark_sha256: "{{ _spark_sha256[spark_package_type][spark_version] }}"
+_spark_package_name: "{{ spark_url | basename }}"
+_spark_directory: "{{ _spark_package_name.rstrip('.tgz') }}"
+
+_spark_sha256:
+  src:
+    1.5.1: 96cfd31ab5c07fe40dfca0475c7df888e2abf15126ff2a3c3af1facd02f1a848
+    1.3.1: aea2384ec5694220d373b64f42d21b34e0df5aa50d15b1b6f6ce5edb5c4b4466
+
+
+_spark_url:
+  src:
+    1.5.1: http://d3kbcqa49mib13.cloudfront.net/spark-1.5.1.tgz
+    1.3.1: http://d3kbcqa49mib13.cloudfront.net/spark-1.3.1.tgz
+
+
+
+_spark_home: "{{ spark_install_dest }}/{{ _spark_directory }}"
+_spark_path_conf: "{{ _spark_home }}/conf"

@@ -1,0 +1,12 @@
+
+
+- name: install and configure spark
+  hosts: frontends
+  sudo: yes
+  roles:
+    - role: spark
+      spark_version: 1.3.1
+      spark_package_type: src
+      spark_build_hadoop_profile: hadoop-2.4
+      spark_build_hadoop_version: 2.6.1
+      spark_build_skip_tests: yes
