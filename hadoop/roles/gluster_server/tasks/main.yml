@@ -28,7 +28,7 @@
     - create_mountpoints
 
 - name: create volume
-  command: gluster volume create {{ gluster_server_volume_name }} {{ _gluster_server_volume_replicate_args }} {{ gluster_server_hostnames | join(':'+gluster_server_brick_path + '/' + gluster_server_volume_name + ' ') }}:{{ gluster_server_brick_path }}/{{ gluster_server_volume_name }} {{ 'force' if gluster_server_volume_create_force else '' }}
+  command: gluster volume create {{ gluster_server_volume_name }} {{ _gluster_server_volume_create_args[gluster_server_volume_type] }} {{ gluster_server_hostnames | join(':'+gluster_server_brick_path + '/' + gluster_server_volume_name + ' ') }}:{{ gluster_server_brick_path }}/{{ gluster_server_volume_name }} {{ 'force' if gluster_server_volume_create_force else '' }}
   register: volume_create
   failed_when: volume_create.rc != 0 and not ('Please try again after sometime.' in volume_create.stderr or 'already exists' in volume_create.stderr)
   changed_when: volume_create.rc == 0
