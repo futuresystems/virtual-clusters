@@ -1,0 +1,86 @@
+---
+
+- name: gluster
+  hosts: frontends
+  sudo: yes
+  roles:
+    - role: gluster_server
+      gluster_server_hostnames: "{{ groups['frontends'] }}"
+      gluster_server_volume_replicate_count: "{{ groups['frontends'] | length}}"
+      gluster_server_volume_name: gluster
+      gluster_server_volume_create_force: yes
+
+
+- name: gluster clients
+  hosts: frontends
+  sudo: yes
+  vars:
+    usernames: "{{ lookup('pipe', 'cat users.txt').split('\n') }}"
+  tasks:
+    - name: install client
+      apt: name=glusterfs-client state=present
+      tags:
+        - gluster_client_install
+        - gluster_client
+        - instasl
+
+    - name: create the root directory
+      file:
+        path: /gluster
+        state: directory
+      tags:
+        - gluster_client_configure
+        - gluster_client
+        - configure
+
+    - name: mount
+      command: mount -t glusterfs -o acl "{{ groups['frontends'][0] }}:/gluster" "/gluster"
+      tags:
+        - gluster_client_mount
+        - gluster_client
+        - mount
+
+    - name: create user directories
+      command: mkdir -p /gluster/{{ item }}
+      command: chown -R {{ item }}:{{ item }} /gluster/{{ item }}
+      with_items: usernames
+      tags:
+        - gluster_client_configure
+        - gluster_client
+        - configure
+
+    - name: create shared directory
+      file:
+        path: "/home/{{ item }}/share"
+        state: directory
+        owner: "{{ item }}"
+        group: "{{ item }}"
+      with_items: usernames
+      tags:
+        - gluster_client_configure
+        - gluster_client
+        - configure
+
+    - name: mount user shared directories
+      command: mount -o bind /gluster/{{ item }} share
+      args:
+        chdir: /home/{{ item }}
+      with_items: usernames
+      tags:
+        - gluster_client_mount
+        - gluster_client
+        - mount
+
+    - name: set permissions
+      file:
+        path: "/home/{{ item }}/share"
+        state: directory
+        owner: "{{ item }}"
+        group: "{{ item }}"
+        mode: 0700
+      with_items: usernames
+      tags:
+        - gluster_client_mount
+        - gluster_client
+        - mount
+        - fix_permissions
