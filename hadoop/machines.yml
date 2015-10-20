@@ -250,9 +250,30 @@ machines:
 
   - name: monitor1
     ip: 10.0.5.11
-    openstack_security_groups:
-      - default
-      - webserver
+
+  - name: gluster1
+    ip: 10.0.6.11
+    openstack_flavor: m1.large
+
+  - name: gluster2
+    ip: 10.0.6.12
+    openstack_flavor: m1.large
+
+  - name: gluster3
+    ip: 10.0.6.13
+    openstack_flavor: m1.large
+
+  - name: gluster4
+    ip: 10.0.6.14
+    openstack_flavor: m1.large
+
+  - name: gluster5
+    ip: 10.0.6.15
+    openstack_flavor: m1.large
+
+  - name: gluster6
+    ip: 10.0.6.16
+    openstack_flavor: m1.large
 
 
 
@@ -319,6 +340,14 @@ inventory:
       - frontend1
       - frontend2
       - frontend3
+
+  - glusternodes: &glusternodes
+      - gluster1
+      - gluster2
+      - gluster3
+      - gluster4
+      - gluster5
+      - gluster6
 
   - hadoop_nodes:
       ^CONCAT^:
