@@ -11,6 +11,7 @@ Requirements:
 
 # Deployment #
 
+0. virtualenv venv && . venv/bin/activate && pip install -r requirements.txt
 1. ./scripts/openstack-boot machines.yml openstack.yml
 2. ./scripts/mkInventory openstack.yml > inventory.txt
 3. ./scripts/mkHosts openstack.yml internal_ip >roles/common/files/hosts
