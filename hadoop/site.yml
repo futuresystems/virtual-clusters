@@ -1,0 +1,7 @@
+
+- include: common.yml
+- include: monitor.yml
+- include: hadoop.yml
+- include: users.yml
+- include: gluster.yml
+- include: spark.yml
