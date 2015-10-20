@@ -22,3 +22,14 @@ git clone --recursive https://github.com/futuresystems/virtual-clusters.git
 6.  `ls public_keys >users.txt`
 7.  `add admin users to admins.txt`
 8.  `ansible-playbook site.yml -u ubuntu -f $(./scripts/listMachines openstack.yml | wc -l)`
+
+
+# Monitoring #
+
+In order to view the Nagios and Ganglia monitoring framework, ssh with X forwarding into the monitor node, install a browser:
+
+```
+$ ./scripts/sshMachine openstack.yml monitor1 -l ubuntu -X
+$ sudo apt-get install chromium-browser
+$ chromium monitor1/ganglia master1:50070 master1:8088
+```
