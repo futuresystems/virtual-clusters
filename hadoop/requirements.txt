@@ -2,5 +2,5 @@ jinja2
 ansible
 ansible-lint
 PyYAML
-python-openstackclient
-python-novaclient
+python-openstackclient==1.7.0
+python-novaclient==2.30.1
