@@ -116,7 +116,7 @@
     - role: java
     - role: supervisord
     - role: hadoop_install
-      hadoop_version: 2.6.1
+      hadoop_version: 2.7.1
     - role: hadoop_configure
 
       hadoop_cfg_path: /opt/hadoop/etc/hadoop
