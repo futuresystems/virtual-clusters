@@ -1,8 +1,10 @@
+# Getting #
 
+```
+git clone --recursive https://github.com/futuresystems/virtual-clusters.git
+```
 
-# About #
-
-Requirements:
+# Requirements #
 
 - [ldapget](https://github.com/futuresystems/ldapget)
 - python
