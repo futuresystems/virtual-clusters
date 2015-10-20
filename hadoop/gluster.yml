@@ -1,19 +1,86 @@
 ---
 
+############################################################ server
+
 - name: gluster
   hosts: glusternodes
   sudo: yes
-  roles:
-    - role: gluster_server
-      gluster_server_hostnames: "{{ groups['glusternodes'] }}"
-      gluster_server_volume_type: stripe
-      gluster_server_volume_stripe_count: "{{ groups['glusternodes'] | length}}"
-      gluster_server_volume_name: gluster
-      gluster_server_volume_create_force: yes
+  tasks:
 
+    - name: install
+      apt:
+        name: glusterfs-server
+        state: present
+      tags:
+        - gluster_server_install
+        - gluster_server
+        - install
+
+    - name: create brick mount points
+      file:
+        path: /export/glusterfs/gluster
+        state: directory
+      tags:
+        - gluster_server_configure
+        - gluster_server
+        - configure
+        - create_mountpoints
+
+############################################################ peers
+
+- name: gluster
+  hosts: glusternodes[0]
+  sudo: yes
+  tasks:
+    - name: probe peers
+      command: gluster peer probe "{{ item }}"
+      with_items:
+        - "{{ groups['glusternodes'][1] }}"
+      tags:
+        - gluster_server_probe
+        - gluster_server
+        - probe
+
+
+- name: gluster
+  hosts: glusternodes[1]
+  sudo: yes
+  tasks:
+
+    - name: probe peers
+      command: gluster peer probe "{{ item }}"
+      with_items: "{{ groups['glusternodes'] }}"
+      tags:
+        - gluster_server_probe
+        - gluster_server
+        - probe
+
+
+############################################################ volumes
+
+- name: gluster
+  hosts: glusternodes[0]
+  sudo: yes
+  tasks:
+
+    - name: create volume
+      command: gluster volume create gluster strip {{ groups['glusternodes'] | length }} {{ groups['glusternodes'] | join(':/export/glusterfs/gluster' + ' ') }}:/export/glusterfs/gluster force
+      tags:
+        - gluster_server_volume_create
+        - gluster_server
+        - volume_create
+
+    - name: start volume
+      command: gluster volume start gluster
+      tags:
+        - gluster_server_volume_start
+        - gluster_server
+        - volume_start
+
+############################################################ clients
 
 - name: gluster clients
-  hosts: glusternodes
+  hosts: frontends
   sudo: yes
   vars:
     usernames: "{{ lookup('pipe', 'cat users.txt').split('\n') }}"
@@ -41,9 +108,14 @@
         - gluster_client
         - mount
 
-    - name: create user directories
-      command: mkdir -p /gluster/{{ item }}
-      command: chown -R {{ item }}:{{ item }} /gluster/{{ item }}
+    - name: create shared directory
+      file:
+        src: "/gluster/{{ item }}"
+        dest: "/home/{{ item }}/share"
+        state: link
+        force: yes
+        owner: "{{ item }}"
+        group: "{{ item }}"
       with_items: usernames
       tags:
         - gluster_client_configure
@@ -51,11 +123,17 @@
         - configure
 
 
-    - name: create shared directory
+- name: gluster clients
+  hosts: frontends[0]
+  sudo: yes
+  vars:
+    usernames: "{{ lookup('pipe', 'cat users.txt').split('\n') }}"
+  tasks:
+
+    - name: create user directories
       file:
-        src: "/gluster/{{ item }}"
-        dest: "/home/{{ item }}/share"
-        state: link
+        path: "/gluster/{{ item }}"
+        state: directory
         owner: "{{ item }}"
         group: "{{ item }}"
       with_items: usernames
