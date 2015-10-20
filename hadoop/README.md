@@ -19,4 +19,4 @@ Requirements:
 5. ldapget -p 9389 -P fg475 -o public_keys
 6. ls public_keys >users.txt
 7. add admin users to admins.txt
-8. ansible-playbook site.yml -u ubuntu -f $(./scripts/listMachines | wc -l)
+8. ansible-playbook site.yml -u ubuntu -f $(./scripts/listMachines openstack.yml | wc -l)
