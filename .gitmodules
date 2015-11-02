@@ -13,3 +13,6 @@
 [submodule "hadoop/roles/ganglia_metad"]
 	path = hadoop/roles/ganglia_metad
 	url = https://github.com/futuresystems/ansible-role-ganglia-metad.git
+[submodule "hadoop/roles/ganglia_web"]
+	path = hadoop/roles/ganglia_web
+	url = https://github.com/futuresystems/ansible-role-ganglia-web.git
