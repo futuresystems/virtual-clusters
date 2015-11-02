@@ -16,3 +16,6 @@
 [submodule "hadoop/roles/ganglia_web"]
 	path = hadoop/roles/ganglia_web
 	url = https://github.com/futuresystems/ansible-role-ganglia-web.git
+[submodule "hadoop/roles/ganglia_mond"]
+	path = hadoop/roles/ganglia_mond
+	url = https://github.com/futuresystems/ansible-role-ganglia-mond.git
