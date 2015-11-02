@@ -10,3 +10,6 @@
 [submodule "hadoop/roles/nagios-server"]
 	path = hadoop/roles/nagios-server
 	url = git@github.com:futuresystems/ansible-role-nagios-server
+[submodule "hadoop/roles/ganglia_metad"]
+	path = hadoop/roles/ganglia_metad
+	url = https://github.com/futuresystems/ansible-role-ganglia-metad.git
