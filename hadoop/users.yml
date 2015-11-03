@@ -112,6 +112,12 @@
       register: user_exists
       tags: hadoop_users
 
+    - name: check for hdfs:///benchmarks/TestDFSIO
+      shell: bash -l -c "hadoop fs -test -d /benchmarks/TestDFSIO"
+      failed_when: False
+      register: dfsio_exists
+      tags: hadoop_users
+
     - name: create hdfs:///tmp
       when: tmp_exists != 0
       shell: bash -l -c "hadoop fs -mkdir -p /tmp"
@@ -121,6 +127,15 @@
       shell: bash -l -c "hadoop fs -chmod -R 1777 /tmp"
       tags: hadoop_users
 
+    - name: create hdfs:///benchmarks/TestDFSIO
+      when: dfsio_exists != 0
+      shell: bash -l -c "hadoop fs -mkdir -p /benchmarks/TestDFSIO"
+      tags: hadoop_users
+
+    - name: fix permissions in hdfs:///benchmarks/TestDFSIO
+      shell: bash -l -c "hadoop fs -chmod -R 1777 /benchmarks/TestDFSIO"
+      tags: hadoop_users
+      
     - name: create hdfs:///user
       when: user_exists.rc != 0
       shell: bash -l -c "hadoop fs -mkdir -p /user"
