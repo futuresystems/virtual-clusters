@@ -118,10 +118,16 @@
       register: dfsio_exists
       tags: hadoop_users
 
-- name: check for hdfs:///benchmarks/MRBench
+    - name: check for hdfs:///benchmarks/MRBench
       shell: bash -l -c "hadoop fs -test -d /benchmarks/MRBench"
       failed_when: False
       register: mrbench_exists
+      tags: hadoop_users
+      
+    - name: check for hdfs:///benchmarks/NNBench
+      shell: bash -l -c "hadoop fs -test -d /benchmarks/NNBench"
+      failed_when: False
+      register: nnbench_exists
       tags: hadoop_users
       
     - name: create hdfs:///tmp
@@ -149,6 +155,15 @@
 
     - name: fix permissions in hdfs:///benchmarks/MRBench
       shell: bash -l -c "hadoop fs -chmod -R 1777 /benchmarks/MRBench"
+      tags: hadoop_users
+      
+    - name: create hdfs:///benchmarks/NNBench
+      when: nnbench_exists != 0
+      shell: bash -l -c "hadoop fs -mkdir -p /benchmarks/NNBench"
+      tags: hadoop_users
+
+    - name: fix permissions in hdfs:///benchmarks/NNBench
+      shell: bash -l -c "hadoop fs -chmod -R 1777 /benchmarks/NNBench"
       tags: hadoop_users
       
     - name: create hdfs:///user
