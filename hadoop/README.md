@@ -9,7 +9,13 @@ git clone --recursive https://github.com/futuresystems/virtual-clusters.git
 - [ldapget](https://github.com/futuresystems/ldapget)
 - python
 - ansible
-
+- security groups of hadoop, hadoop-status, sshlb, and webserver
+   - rule name (port range)
+   - hadoop (1-65535)
+   - hadoop-status (8088, 50070, 19888)
+   - sshlb (2222)
+   - webserver (80, 443)
+- ssh-agent if a ssh key is passphrase enabled (ansible uses ssh to install software packages)
 
 # Deployment #
 
