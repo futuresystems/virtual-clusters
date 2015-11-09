@@ -102,7 +102,11 @@
         - configure
 
     - name: mount
-      command: mount -t glusterfs -o acl "{{ groups['glusternodes'][0] }}:/gluster" "/gluster"
+      mount:
+        fstype: glusterfs
+        src: "{{ groups['glusternodes'][0] }}:/gluster"
+        name: "/gluster"
+        state: mounted
       tags:
         - gluster_client_mount
         - gluster_client
