@@ -1,0 +1,40 @@
+---
+
+- hosts: frontends
+  sudo: yes
+  tasks:
+
+    - name: install python packages
+      apt:
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - python
+        - python-dev
+        - python-pip
+        - python-virtualenv
+        - python-matplotlib
+
+        # dependencies for matplotlib
+        - libc6
+        - libc6-dev
+        - libfreetype6
+        - libfreetype6-dev
+        - libgcc1
+        - libgdk-pixbuf2.0-0
+        - libgdk-pixbuf2.0-dev
+        - libglib2.0-0
+        - libglib2.0-dev
+        - libgtk2.0-0
+        - libgtk2.0-dev
+        - libpng12-0
+        - libpng12-dev
+        - libstdc++6
+        - libtcl8.6
+
+        # deps for numpy/scipy
+        - libblas3
+        - libblas-dev
+        - liblapack-dev
+        - gfortran
+        - libumfpack5.6.2
