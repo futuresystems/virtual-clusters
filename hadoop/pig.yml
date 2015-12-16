@@ -1,0 +1,36 @@
+---
+
+- name: pig
+  hosts: frontends
+  sudo: yes
+  vars:
+    pig_version: 0.15.0
+    pig_bin_sha256:
+      0.15.0: c52112ca618daaca298cf068e6451449fe946e8dccd812d56f8f537aa275234b
+    pig_install_dest: /opt
+  tasks:
+
+    - name: download pig
+      get_url:
+        url: "https://www.us.apache.org/dist/pig/latest/pig-{{ pig_version }}.tar.gz"
+        dest: "{{ ansible_env.PWD }}/pig-{{ pig_version }}.tar.gz"
+        sha256sum: "{{ pig_bin_sha256[pig_version] }}"
+        validate_certs: no
+
+    - name: extract pig
+      command: tar xf "pig-{{ pig_version }}.tar.gz" -C "{{ pig_install_dest }}"
+
+    - name: symlink
+      file:
+        path: "{{ pig_install_dest }}/pig"
+        src: "{{ pig_install_dest }}/pig-{{ pig_version }}"
+        state: link
+
+    - name: set environment exports
+      lineinfile:
+        dest: "/etc/profile.d/pig.sh"
+        line: "export {{ item }}"
+        create: yes
+      with_items:
+        - PIG_HOME={{ pig_install_dest }}/pig
+        - PATH=$PATH:$PIG_HOME/bin
