@@ -1,0 +1,113 @@
+---
+
+- name: hbase
+  hosts: hadoop_nodes
+  sudo: yes
+  vars:
+    hbase_version: 1.1.2
+    hbase_bin_sha256:
+      1.1.2: 8ca5bf0203cef86b4a0acbba89afcd5977488ebc73eec097e93c592b16f8bede
+    hbase_install_dest: /opt
+
+    hbase_log_dir: /var/log
+
+    hbase_site:
+      hbase.rootdir: hdfs:///hbase
+      hbase.zookeeper.quorum: zk1.local:2181,zk2.local:2181,zk3.local:2181
+      zookeeper.znode.parent: /hbase
+      hbase.cluster.distributed: "true"
+
+    hbase_regionservers: "{{ groups['datanodes'] }}"
+
+  tasks:
+
+    - name: download hbase
+      get_url:
+        url: "https://www.us.apache.org/dist/hbase/stable/hbase-{{ hbase_version }}-bin.tar.gz"
+        dest: "{{ ansible_env.PWD }}/hbase-{{ hbase_version }}.tar.gz"
+        sha256sum: "{{ hbase_bin_sha256[hbase_version] }}"
+        validate_certs: no
+
+    - name: extract hbase
+      command: tar xf "hbase-{{ hbase_version }}.tar.gz" -C "{{ hbase_install_dest }}"
+
+    - name: symlink
+      file:
+        path: "{{ hbase_install_dest }}/hbase"
+        src: "{{ hbase_install_dest }}/hbase-{{ hbase_version }}"
+        state: link
+
+    - name: set environment exports
+      lineinfile:
+        dest: "/etc/profile.d/hbase.sh"
+        line: "export {{ item }}"
+        create: yes
+      with_items:
+        - HBASE_HOME={{ hbase_install_dest }}/hbase
+        - PATH=$PATH:$HBASE_HOME/bin
+        - HBASE_CONF_DIR={{ hbase_install_dest }}/hbase/conf
+
+    - name: configure log4j
+      lineinfile:
+        regexp: '^hbase\.log\.dir=.*'
+        line: "hbase.log.dir={{ hbase_log_dir }}"
+        dest: "{{ hbase_install_dest }}/hbase/conf/log4j.properties"
+
+    - name: configure hbase-env
+      lineinfile:
+        dest: "{{ hbase_install_dest }}/hbase/conf/hbase-env.sh"
+        line: "export {{ item }}"
+        create: yes
+      with_items:
+        - HBASE_MANAGES_ZK=false
+
+    - name: configure hbase-site
+      template:
+        src: templates/hbase-site.xml.j2
+        dest: "{{ hbase_install_dest }}/hbase/conf/hbase-site.xml"
+
+    - name: wipe default region servers
+      file:
+        path: "{{ hbase_install_dest }}/hbase/conf/regionservers"
+        state: absent
+
+    - name: configure region servers
+      lineinfile:
+        dest: "{{ hbase_install_dest }}/hbase/conf/regionservers"
+        line: "{{ item }}"
+        create: yes
+      with_items: hbase_regionservers
+
+    - name: fix logdir permissions
+      file:
+        dest: "{{ hbase_install_dest }}/hbase/logs"
+        state: directory
+        owner: hadoop
+        group: hadoop
+
+
+- name: hbase master
+  hosts: resourcemanagers
+  sudo: yes
+  roles:
+    - role: supervisord
+      supervisord_programs:
+
+        hbase_master:
+          command: sh -lc 'hbase master start'
+          user: hadoop
+          stdout_logfile: /hdfs/hbase-master-stdout.log
+          stderr_logfile: /hdfs/hbase-master-stderr.log
+
+- name: hbase regionserver
+  hosts: datanodes
+  sudo: yes
+  roles:
+    - role: supervisord
+      supervisord_programs:
+
+        hbase_regionserver:
+          command: sh -lc 'hbase regionserver start'
+          user: hadoop
+          stdout_logfile: /hdfs/hbase-regionserver-stdout.log
+          stderr_logfile: /hdfs/hbase-regionserver-stderr.log
